@@ -182,14 +182,14 @@ final class DefaultEncounterJoinPolicyTest {
                         Optional.of(memberParty),
                         JoinResult.SUCCESS),
                 Case.of(
-                        "SPECTATOR under PARTY_ONLY follows same access rules (missing partyId denies)",
+                        "SPECTATOR under PARTY_ONLY allowed when spectator policy allows (partyId not required)",
                         player,
                         partyOnlyAllowSpectate,
                         noPartyCtx,
                         ParticipationRole.SPECTATOR,
                         Optional.of(knownPlayer),
                         Optional.of(memberParty),
-                        JoinResult.DENIED_POLICY));
+                        JoinResult.SUCCESS));
     }
 
     private static EncounterDefinition def(EncounterAccessPolicy access, SpectatorPolicy spectator) {

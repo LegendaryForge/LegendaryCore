@@ -44,6 +44,9 @@ public final class DefaultEncounterJoinPolicy implements EncounterJoinPolicy {
             if (definition.spectatorPolicy() == SpectatorPolicy.DISALLOW) {
                 return JoinResult.DENIED_POLICY;
             }
+            // View-only spectators are governed solely by SpectatorPolicy in the v0.1 reference policy.
+            // EncounterAccessPolicy applies to active participation, not passive viewing.
+            return JoinResult.SUCCESS;
         }
 
         EncounterAccessPolicy access = definition.accessPolicy();
