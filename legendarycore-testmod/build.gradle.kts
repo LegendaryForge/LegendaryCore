@@ -20,6 +20,6 @@ dependencies {
 }
 
 tasks.test {
+    dependsOn(":shadowJar")
     useJUnitPlatform()
 }
-
