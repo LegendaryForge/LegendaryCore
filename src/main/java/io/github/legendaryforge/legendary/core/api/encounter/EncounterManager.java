@@ -14,4 +14,13 @@ public interface EncounterManager {
     void end(EncounterInstance instance, EndReason reason);
 
     Optional<EncounterInstance> byInstanceId(UUID instanceId);
+
+    /**
+     * Optional lookup by deterministic encounter key.
+     *
+     * <p>Implementations may return {@link Optional#empty()} if they do not index encounters by key.
+     */
+    default Optional<EncounterInstance> byKey(EncounterKey key) {
+        return Optional.empty();
+    }
 }
