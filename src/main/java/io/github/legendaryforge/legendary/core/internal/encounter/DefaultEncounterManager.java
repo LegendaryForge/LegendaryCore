@@ -8,6 +8,8 @@ import io.github.legendaryforge.legendary.core.api.encounter.EncounterState;
 import io.github.legendaryforge.legendary.core.api.encounter.EndReason;
 import io.github.legendaryforge.legendary.core.api.encounter.JoinResult;
 import io.github.legendaryforge.legendary.core.api.encounter.ParticipationRole;
+import io.github.legendaryforge.legendary.core.api.identity.PartyDirectory;
+import io.github.legendaryforge.legendary.core.api.identity.PlayerDirectory;
 
 import io.github.legendaryforge.legendary.core.internal.encounter.policy.DefaultEncounterJoinPolicy;
 import io.github.legendaryforge.legendary.core.internal.encounter.policy.EncounterJoinPolicy;
@@ -33,7 +35,26 @@ public final class DefaultEncounterManager implements EncounterManager {
 
     private final Map<UUID, DefaultEncounterInstance> instances = new ConcurrentHashMap<>();
 
-    private final EncounterJoinPolicy joinPolicy = new DefaultEncounterJoinPolicy();
+    private final EncounterJoinPolicy joinPolicy;
+    private final Optional<PlayerDirectory> players;
+    private final Optional<PartyDirectory> parties;
+
+    public DefaultEncounterManager() {
+        this(new DefaultEncounterJoinPolicy(), Optional.empty(), Optional.empty());
+    }
+
+    public DefaultEncounterManager(Optional<PlayerDirectory> players, Optional<PartyDirectory> parties) {
+        this(new DefaultEncounterJoinPolicy(), players, parties);
+    }
+
+    public DefaultEncounterManager(EncounterJoinPolicy joinPolicy,
+                                  Optional<PlayerDirectory> players,
+                                  Optional<PartyDirectory> parties) {
+        this.joinPolicy = java.util.Objects.requireNonNull(joinPolicy, "joinPolicy");
+        this.players = java.util.Objects.requireNonNull(players, "players");
+        this.parties = java.util.Objects.requireNonNull(parties, "parties");
+    }
+
 
     @Override
     public EncounterInstance create(EncounterDefinition definition, EncounterContext context) {
@@ -73,8 +94,8 @@ public final class DefaultEncounterManager implements EncounterManager {
                 i.definition,
                 i.context,
                 role,
-                Optional.empty(),
-                Optional.empty()
+                players,
+                parties
         );
         if (policyResult != JoinResult.SUCCESS) {
             return policyResult;
