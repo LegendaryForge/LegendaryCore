@@ -3,6 +3,7 @@ package io.github.legendaryforge.legendary.core.internal.encounter.policy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterAccessPolicy;
+import io.github.legendaryforge.legendary.core.api.encounter.EncounterAnchor;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterContext;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterDefinition;
 import io.github.legendaryforge.legendary.core.api.encounter.JoinResult;
@@ -229,13 +230,8 @@ final class DefaultEncounterJoinPolicyTest {
     private static EncounterContext context(Optional<UUID> partyId) {
         return new EncounterContext() {
             @Override
-            public Optional<UUID> partyId() {
-                return partyId;
-            }
-
-            @Override
-            public ResourceId worldId() {
-                return ResourceId.parse("test:world");
+            public EncounterAnchor anchor() {
+                return new EncounterAnchor(ResourceId.parse("test:world"), Optional.empty(), partyId);
             }
 
             @Override

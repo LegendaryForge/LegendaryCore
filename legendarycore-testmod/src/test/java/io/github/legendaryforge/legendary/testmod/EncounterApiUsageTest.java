@@ -1,5 +1,7 @@
 package io.github.legendaryforge.legendary.testmod;
 
+import io.github.legendaryforge.legendary.core.api.encounter.EncounterAnchor;
+
 import io.github.legendaryforge.legendary.core.api.encounter.*;
 import io.github.legendaryforge.legendary.core.api.id.ResourceId;
 import org.junit.jupiter.api.Test;
@@ -66,23 +68,21 @@ public class EncounterApiUsageTest {
         EncounterDefinition definition = new TestEncounterDefinition();
 
         EncounterContext context = new EncounterContext() {
-            @Override
-            public Optional<UUID> partyId() {
-                return Optional.empty();
-            }
+      @Override
+      public EncounterAnchor anchor() {
+        return new EncounterAnchor(
+            ResourceId.of("legendarytest", "test_world"),
+            Optional.empty(),
+            Optional.empty());
+      }
 
-            @Override
-            public ResourceId worldId() {
-                return ResourceId.of("legendarytest", "test_world");
-            }
+      @Override
+      public Map<String, Object> metadata() {
+        return Map.of("difficulty", "normal");
+      }
+    };
 
-            @Override
-            public Map<String, Object> metadata() {
-                return Map.of("difficulty", "normal");
-            }
-        };
-
-        EncounterInstance instance = manager.create(definition, context);
+EncounterInstance instance = manager.create(definition, context);
 
         UUID playerId = UUID.randomUUID();
 
