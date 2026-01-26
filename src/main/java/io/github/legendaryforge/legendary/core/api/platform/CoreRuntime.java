@@ -2,9 +2,13 @@ package io.github.legendaryforge.legendary.core.api.platform;
 
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterManager;
 import io.github.legendaryforge.legendary.core.api.event.EventBus;
+import io.github.legendaryforge.legendary.core.api.identity.PartyDirectory;
+import io.github.legendaryforge.legendary.core.api.identity.PlayerDirectory;
 import io.github.legendaryforge.legendary.core.api.lifecycle.Lifecycle;
 import io.github.legendaryforge.legendary.core.api.lifecycle.ServiceRegistry;
 import io.github.legendaryforge.legendary.core.api.registry.RegistryAccess;
+
+import java.util.Optional;
 
 /**
  * Platform-provided runtime access point for LegendaryCore.
@@ -24,4 +28,22 @@ public interface CoreRuntime {
     EventBus events();
 
     EncounterManager encounters();
+
+    /**
+     * Optional platform-provided player identity directory.
+     *
+     * <p>This is intentionally optional in v0.1 to avoid forcing platform coupling early.</p>
+     */
+    default Optional<PlayerDirectory> players() {
+        return Optional.empty();
+    }
+
+    /**
+     * Optional platform-provided party membership directory.
+     *
+     * <p>This is intentionally optional in v0.1 to avoid forcing platform coupling early.</p>
+     */
+    default Optional<PartyDirectory> parties() {
+        return Optional.empty();
+    }
 }
