@@ -1,7 +1,6 @@
 package io.github.legendaryforge.legendary.core.internal.registry;
 
 import io.github.legendaryforge.legendary.core.api.registry.*;
-
 import java.util.HashMap;
 import java.util.Map;
 

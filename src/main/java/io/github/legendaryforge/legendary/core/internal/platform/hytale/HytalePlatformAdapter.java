@@ -2,7 +2,6 @@ package io.github.legendaryforge.legendary.core.internal.platform.hytale;
 
 import io.github.legendaryforge.legendary.core.api.platform.CoreRuntime;
 import io.github.legendaryforge.legendary.core.internal.runtime.DefaultCoreRuntime;
-
 import java.util.Objects;
 
 /**

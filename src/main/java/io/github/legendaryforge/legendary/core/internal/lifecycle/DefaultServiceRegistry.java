@@ -2,7 +2,6 @@ package io.github.legendaryforge.legendary.core.internal.lifecycle;
 
 import io.github.legendaryforge.legendary.core.api.lifecycle.LifecyclePhase;
 import io.github.legendaryforge.legendary.core.api.lifecycle.ServiceRegistry;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;

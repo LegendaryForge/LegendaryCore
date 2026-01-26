@@ -1,14 +1,13 @@
 package io.github.legendaryforge.legendary.core.internal.registry;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.github.legendaryforge.legendary.core.api.id.ResourceId;
 import io.github.legendaryforge.legendary.core.api.registry.Registry;
 import io.github.legendaryforge.legendary.core.api.registry.RegistryKey;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class DefaultRegistryAccessTest {
 
@@ -24,11 +23,12 @@ class DefaultRegistryAccessTest {
         Registry<String> registry = access.registry(key);
 
         List<ResourceId> ids = new ArrayList<>(registry.ids());
-        assertEquals(List.of(
-                ResourceId.parse("legendarycore:a"),
-                ResourceId.parse("legendarycore:b"),
-                ResourceId.parse("legendarycore:c")
-        ), ids);
+        assertEquals(
+                List.of(
+                        ResourceId.parse("legendarycore:a"),
+                        ResourceId.parse("legendarycore:b"),
+                        ResourceId.parse("legendarycore:c")),
+                ids);
     }
 
     @Test

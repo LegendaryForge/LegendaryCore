@@ -1,7 +1,6 @@
 package io.github.legendaryforge.legendary.core.api.registry;
 
 import io.github.legendaryforge.legendary.core.api.id.ResourceId;
-
 import java.util.Objects;
 
 public final class RegistryKey<T> {

@@ -8,7 +8,6 @@ import io.github.legendaryforge.legendary.core.api.encounter.ParticipationRole;
 import io.github.legendaryforge.legendary.core.api.encounter.SpectatorPolicy;
 import io.github.legendaryforge.legendary.core.api.identity.PartyDirectory;
 import io.github.legendaryforge.legendary.core.api.identity.PlayerDirectory;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,12 +21,13 @@ import java.util.UUID;
 public final class DefaultEncounterJoinPolicy implements EncounterJoinPolicy {
 
     @Override
-    public JoinResult evaluate(UUID playerId,
-                               EncounterDefinition definition,
-                               EncounterContext context,
-                               ParticipationRole role,
-                               Optional<PlayerDirectory> players,
-                               Optional<PartyDirectory> parties) {
+    public JoinResult evaluate(
+            UUID playerId,
+            EncounterDefinition definition,
+            EncounterContext context,
+            ParticipationRole role,
+            Optional<PlayerDirectory> players,
+            Optional<PartyDirectory> parties) {
         Objects.requireNonNull(playerId, "playerId");
         Objects.requireNonNull(definition, "definition");
         Objects.requireNonNull(context, "context");
@@ -61,9 +61,8 @@ public final class DefaultEncounterJoinPolicy implements EncounterJoinPolicy {
         }
     }
 
-    private static JoinResult evaluatePartyOnly(UUID playerId,
-                                                EncounterContext context,
-                                                Optional<PartyDirectory> parties) {
+    private static JoinResult evaluatePartyOnly(
+            UUID playerId, EncounterContext context, Optional<PartyDirectory> parties) {
         Optional<UUID> partyId = context.partyId();
         if (partyId.isEmpty()) {
             return JoinResult.DENIED_POLICY;
@@ -71,8 +70,6 @@ public final class DefaultEncounterJoinPolicy implements EncounterJoinPolicy {
         if (parties.isEmpty()) {
             return JoinResult.DENIED_POLICY;
         }
-        return parties.get().isMember(partyId.get(), playerId)
-                ? JoinResult.SUCCESS
-                : JoinResult.DENIED_POLICY;
+        return parties.get().isMember(partyId.get(), playerId) ? JoinResult.SUCCESS : JoinResult.DENIED_POLICY;
     }
 }

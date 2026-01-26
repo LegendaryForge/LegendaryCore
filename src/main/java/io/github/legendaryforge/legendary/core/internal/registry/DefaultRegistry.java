@@ -3,7 +3,6 @@ package io.github.legendaryforge.legendary.core.internal.registry;
 import io.github.legendaryforge.legendary.core.api.id.ResourceId;
 import io.github.legendaryforge.legendary.core.api.registry.Registry;
 import io.github.legendaryforge.legendary.core.api.registry.RegistryKey;
-
 import java.util.*;
 
 final class DefaultRegistry<T> implements Registry<T> {

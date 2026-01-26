@@ -10,10 +10,8 @@ import io.github.legendaryforge.legendary.core.api.encounter.JoinResult;
 import io.github.legendaryforge.legendary.core.api.encounter.ParticipationRole;
 import io.github.legendaryforge.legendary.core.api.identity.PartyDirectory;
 import io.github.legendaryforge.legendary.core.api.identity.PlayerDirectory;
-
 import io.github.legendaryforge.legendary.core.internal.encounter.policy.DefaultEncounterJoinPolicy;
 import io.github.legendaryforge.legendary.core.internal.encounter.policy.EncounterJoinPolicy;
-
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -47,14 +45,12 @@ public final class DefaultEncounterManager implements EncounterManager {
         this(new DefaultEncounterJoinPolicy(), players, parties);
     }
 
-    public DefaultEncounterManager(EncounterJoinPolicy joinPolicy,
-                                  Optional<PlayerDirectory> players,
-                                  Optional<PartyDirectory> parties) {
+    public DefaultEncounterManager(
+            EncounterJoinPolicy joinPolicy, Optional<PlayerDirectory> players, Optional<PartyDirectory> parties) {
         this.joinPolicy = java.util.Objects.requireNonNull(joinPolicy, "joinPolicy");
         this.players = java.util.Objects.requireNonNull(players, "players");
         this.parties = java.util.Objects.requireNonNull(parties, "parties");
     }
-
 
     @Override
     public EncounterInstance create(EncounterDefinition definition, EncounterContext context) {
@@ -62,8 +58,7 @@ public final class DefaultEncounterManager implements EncounterManager {
         java.util.Objects.requireNonNull(context, "context");
 
         UUID id = UUID.randomUUID();
-        DefaultEncounterInstance instance =
-                new DefaultEncounterInstance(id, definition, context);
+        DefaultEncounterInstance instance = new DefaultEncounterInstance(id, definition, context);
 
         instances.put(id, instance);
         return instance;
@@ -89,14 +84,7 @@ public final class DefaultEncounterManager implements EncounterManager {
         if (i.state == EncounterState.ENDED) {
             return JoinResult.DENIED_STATE;
         }
-        JoinResult policyResult = joinPolicy.evaluate(
-                playerId,
-                i.definition,
-                i.context,
-                role,
-                players,
-                parties
-        );
+        JoinResult policyResult = joinPolicy.evaluate(playerId, i.definition, i.context, role, players, parties);
         if (policyResult != JoinResult.SUCCESS) {
             return policyResult;
         }
@@ -121,7 +109,6 @@ public final class DefaultEncounterManager implements EncounterManager {
 
         i.spectators.add(playerId);
         return JoinResult.SUCCESS;
-
     }
 
     @Override
@@ -189,9 +176,7 @@ public final class DefaultEncounterManager implements EncounterManager {
         private final Set<UUID> participants = new LinkedHashSet<>();
         private final Set<UUID> spectators = new LinkedHashSet<>();
 
-        private DefaultEncounterInstance(UUID instanceId,
-                                         EncounterDefinition definition,
-                                         EncounterContext context) {
+        private DefaultEncounterInstance(UUID instanceId, EncounterDefinition definition, EncounterContext context) {
             this.instanceId = instanceId;
             this.definition = definition;
             this.context = context;

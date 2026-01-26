@@ -1,9 +1,9 @@
 package io.github.legendaryforge.legendary.core.internal.lifecycle;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.github.legendaryforge.legendary.core.api.lifecycle.LifecyclePhase;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class LifecycleAndServicesTest {
 
@@ -12,7 +12,7 @@ class LifecycleAndServicesTest {
         DefaultLifecycle lc = new DefaultLifecycle();
         lc.advanceTo(LifecyclePhase.REGISTRATION);
 
-        final boolean[] ran = { false };
+        final boolean[] ran = {false};
         lc.onPhase(LifecyclePhase.BOOTSTRAP, () -> ran[0] = true);
 
         assertTrue(ran[0]);
@@ -22,7 +22,7 @@ class LifecycleAndServicesTest {
     void onPhase_runs_when_phase_is_reached() {
         DefaultLifecycle lc = new DefaultLifecycle();
 
-        final int[] count = { 0 };
+        final int[] count = {0};
         lc.onPhase(LifecyclePhase.ENABLED, () -> count[0]++);
 
         assertEquals(0, count[0]);

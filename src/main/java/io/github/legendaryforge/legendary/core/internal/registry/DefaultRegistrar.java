@@ -2,7 +2,6 @@ package io.github.legendaryforge.legendary.core.internal.registry;
 
 import io.github.legendaryforge.legendary.core.api.id.ResourceId;
 import io.github.legendaryforge.legendary.core.api.registry.Registrar;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;

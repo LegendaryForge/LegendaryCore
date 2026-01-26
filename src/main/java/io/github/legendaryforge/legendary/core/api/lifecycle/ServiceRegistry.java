@@ -9,8 +9,6 @@ public interface ServiceRegistry {
     <T> Optional<T> get(Class<T> type);
 
     default <T> T require(Class<T> type) {
-        return get(type).orElseThrow(() ->
-                new IllegalStateException("Service not registered: " + type.getName())
-        );
+        return get(type).orElseThrow(() -> new IllegalStateException("Service not registered: " + type.getName()));
     }
 }

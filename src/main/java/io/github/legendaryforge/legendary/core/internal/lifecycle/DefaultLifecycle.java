@@ -2,7 +2,6 @@ package io.github.legendaryforge.legendary.core.internal.lifecycle;
 
 import io.github.legendaryforge.legendary.core.api.lifecycle.Lifecycle;
 import io.github.legendaryforge.legendary.core.api.lifecycle.LifecyclePhase;
-
 import java.util.*;
 
 public final class DefaultLifecycle implements Lifecycle {
@@ -27,7 +26,7 @@ public final class DefaultLifecycle implements Lifecycle {
         Objects.requireNonNull(callback, "callback");
 
         // If target phase is current or already passed, run immediately.
-        if (phase.ordinal() >= target.ordinal()) {
+        if (phase.compareTo(target) >= 0) {
             callback.run();
             return;
         }
@@ -41,7 +40,7 @@ public final class DefaultLifecycle implements Lifecycle {
      */
     public synchronized void advanceTo(LifecyclePhase next) {
         Objects.requireNonNull(next, "next");
-        if (next.ordinal() < phase.ordinal()) {
+        if (next.compareTo(phase) < 0) {
             throw new IllegalStateException("Cannot move lifecycle backwards from " + phase + " to " + next);
         }
         if (next == phase) {

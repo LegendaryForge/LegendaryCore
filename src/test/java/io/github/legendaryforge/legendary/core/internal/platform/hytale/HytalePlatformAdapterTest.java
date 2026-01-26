@@ -1,9 +1,9 @@
 package io.github.legendaryforge.legendary.core.internal.platform.hytale;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import io.github.legendaryforge.legendary.core.api.platform.CoreRuntime;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 final class HytalePlatformAdapterTest {
 

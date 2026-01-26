@@ -1,7 +1,6 @@
 package io.github.legendaryforge.legendary.core.internal.event;
 
 import io.github.legendaryforge.legendary.core.api.event.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

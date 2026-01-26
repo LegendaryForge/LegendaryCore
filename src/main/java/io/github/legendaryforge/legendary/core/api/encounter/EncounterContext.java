@@ -1,7 +1,6 @@
 package io.github.legendaryforge.legendary.core.api.encounter;
 
 import io.github.legendaryforge.legendary.core.api.id.ResourceId;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;

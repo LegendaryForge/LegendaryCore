@@ -6,7 +6,6 @@ import io.github.legendaryforge.legendary.core.api.encounter.JoinResult;
 import io.github.legendaryforge.legendary.core.api.encounter.ParticipationRole;
 import io.github.legendaryforge.legendary.core.api.identity.PartyDirectory;
 import io.github.legendaryforge.legendary.core.api.identity.PlayerDirectory;
-
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,10 +26,11 @@ public interface EncounterJoinPolicy {
      * <p>Directories are optional seams. If a decision requires directory information and
      * the directory is absent, the evaluation must deny.</p>
      */
-    JoinResult evaluate(UUID playerId,
-                        EncounterDefinition definition,
-                        EncounterContext context,
-                        ParticipationRole role,
-                        Optional<PlayerDirectory> players,
-                        Optional<PartyDirectory> parties);
+    JoinResult evaluate(
+            UUID playerId,
+            EncounterDefinition definition,
+            EncounterContext context,
+            ParticipationRole role,
+            Optional<PlayerDirectory> players,
+            Optional<PartyDirectory> parties);
 }

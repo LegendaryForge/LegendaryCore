@@ -7,7 +7,6 @@ import io.github.legendaryforge.legendary.core.api.identity.PlayerDirectory;
 import io.github.legendaryforge.legendary.core.api.lifecycle.Lifecycle;
 import io.github.legendaryforge.legendary.core.api.lifecycle.ServiceRegistry;
 import io.github.legendaryforge.legendary.core.api.registry.RegistryAccess;
-
 import java.util.Optional;
 
 /**

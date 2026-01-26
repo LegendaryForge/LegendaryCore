@@ -13,7 +13,6 @@ import io.github.legendaryforge.legendary.core.internal.event.SimpleEventBus;
 import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultLifecycle;
 import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultServiceRegistry;
 import io.github.legendaryforge.legendary.core.internal.registry.DefaultRegistryAccess;
-
 import java.util.Objects;
 import java.util.Optional;
 
@@ -49,9 +48,8 @@ public final class DefaultCoreRuntime implements CoreRuntime {
         this(encounters, Optional.empty(), Optional.empty());
     }
 
-    private DefaultCoreRuntime(EncounterManager encounters,
-                               Optional<PlayerDirectory> players,
-                               Optional<PartyDirectory> parties) {
+    private DefaultCoreRuntime(
+            EncounterManager encounters, Optional<PlayerDirectory> players, Optional<PartyDirectory> parties) {
         this.registries = new DefaultRegistryAccess();
 
         DefaultLifecycle lifecycle = new DefaultLifecycle();
