@@ -2,7 +2,8 @@
 
 LegendaryCore is a shared foundation library for Legendary mods built for Hytale.
 
-Its purpose is to provide stable, reusable primitives that multiple Legendary mods can depend on, without embedding gameplay logic or design assumptions into the core itself.
+Its purpose is to provide stable, reusable primitives that multiple Legendary mods can depend on,
+without embedding gameplay logic or design assumptions into the core itself.
 
 ---
 
@@ -55,6 +56,33 @@ LegendaryCore distinguishes between:
 - **Internal code** (`core.internal.*`): subject to change without notice
 
 Only the public API should be relied upon by other Legendary mods.
+
+---
+
+## Core vs Platform Responsibility
+
+LegendaryCore is intentionally platform-agnostic.
+
+It defines shared **mechanisms and contracts**, not game runtime behavior.
+
+### LegendaryCore Responsibilities
+- Identity and namespacing primitives
+- Deterministic registries and discovery
+- Lifecycle coordination and service exposure
+- Event abstractions (mechanics only)
+- Encounter *models* and policies (interfaces, states, outcomes)
+
+### Platform Responsibilities (e.g. Hytale)
+- Game event listeners and hooks
+- Player, world, and entity interaction
+- Threading, scheduling, and tick integration
+- Runtime execution of encounters
+- Translation between platform concepts and core APIs
+
+Platform-specific code is expected to live in internal adapter layers and must not
+leak into the public LegendaryCore API.
+
+For detailed stability and versioning guarantees, see `API_STABILITY.md`.
 
 ---
 
