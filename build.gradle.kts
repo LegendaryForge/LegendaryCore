@@ -1,11 +1,10 @@
 plugins {
     id("java-library")
     id("com.gradleup.shadow") version "9.3.1"
-    id("run-hytale")
 }
 
-group = findProperty("pluginGroup") as String? ?: "com.example"
-version = findProperty("pluginVersion") as String? ?: "1.0.0"
+project.group = (findProperty("pluginGroup") as String? ?: "com.example")
+project.version = (findProperty("pluginVersion") as String? ?: "1.0.0")
 description = findProperty("pluginDescription") as String? ?: "A Hytale plugin template"
 
 repositories {
@@ -13,9 +12,30 @@ repositories {
     mavenCentral()
 }
 
+// --- Hytale install detection (Linux) ---
+val patchlineProp = (findProperty("patchline") as String?) ?: "release"
+val hytaleHomeProp = findProperty("hytale_home") as String?
+
+val hytaleHome = hytaleHomeProp ?: run {
+    val flatpak = file(System.getProperty("user.home") + "/.var/app/com.hypixel.HytaleLauncher/data/Hytale")
+    if (flatpak.exists()) flatpak.absolutePath else {
+        val local = file(System.getProperty("user.home") + "/.local/share/Hytale")
+        if (local.exists()) local.absolutePath else ""
+    }
+}
+
+if (hytaleHome.isBlank()) {
+    throw GradleException("Your Hytale install could not be detected automatically. Set hytale_home in gradle.properties.")
+}
+
+val hytaleServerJar = file("$hytaleHome/install/$patchlineProp/package/game/latest/Server/HytaleServer.jar")
+if (!hytaleServerJar.exists()) {
+    throw GradleException("Failed to find HytaleServer.jar at expected path: ${hytaleServerJar.path}. Set hytale_home or patchline in gradle.properties.")
+}
+
 dependencies {
     // Hytale Server API (provided by server at runtime)
-    compileOnly(files("./libs/HytaleServer.jar"))
+    implementation(files(hytaleServerJar))
     
     // Common dependencies (will be bundled in JAR)
     implementation("com.google.code.gson:gson:2.10.1")
@@ -27,10 +47,6 @@ dependencies {
 }
 
 // Configure server testing
-runHytale {
-    jarUrl = "./libs/HytaleServer.jar"
-    assetsPath = "./libs/Assets.zip"
-}
 
 tasks {
     // Configure Java compilation
@@ -40,6 +56,8 @@ tasks {
     }
     
     // Configure resource processing
+    // Build-time token expansion for src/main/resources/manifest.json (e.g., "Version": "${version}")
+
     processResources {
         filteringCharset = Charsets.UTF_8.name()
         
@@ -85,3 +103,7 @@ java {
         languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
+
+
+
+

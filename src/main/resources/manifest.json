@@ -1,22 +1,17 @@
 {
-    "Group": "Example",
-    "Name": "ExamplePlugin",
-    "Version": "0.0.2",
-    "Description": "An example plugin for HyTale!",
+    "Group": "Legendary",
+    "Name": "LegendaryCore",
+    "Version": "${version}",
+    "Description": "Foundation library for Legendary mods",
     "Authors": [
         {
-            "Name": "It's you!"
+            "Name": "LegendaryForge"
         }
     ],
-    "Website": "example.org",
     "ServerVersion": "*",
-    "Dependencies": {
-        
-    },
-    "OptionalDependencies": {
-        
-    },
+    "Dependencies": {},
+    "OptionalDependencies": {},
     "DisabledByDefault": false,
-    "Main": "org.example.plugin.ExamplePlugin",
+    "Main": "io.github.legendaryforge.legendary.core.LegendaryCorePlugin",
     "IncludesAssetPack": true
 }

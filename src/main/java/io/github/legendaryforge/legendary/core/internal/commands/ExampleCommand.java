@@ -1,4 +1,4 @@
-package org.example.plugin;
+package io.github.legendaryforge.legendary.core.internal.commands;
 
 import com.hypixel.hytale.protocol.GameMode;
 import com.hypixel.hytale.server.core.Message;
