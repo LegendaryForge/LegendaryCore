@@ -1,1 +1,4 @@
 rootProject.name = "LegendaryCore"
+
+include("legendarycore-testmod")
+
