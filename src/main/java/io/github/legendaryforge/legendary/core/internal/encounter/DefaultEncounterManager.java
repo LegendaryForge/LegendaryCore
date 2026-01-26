@@ -33,6 +33,9 @@ public final class DefaultEncounterManager implements EncounterManager {
 
     private final Map<UUID, DefaultEncounterInstance> instances = new ConcurrentHashMap<>();
 
+    private final Map<io.github.legendaryforge.legendary.core.api.encounter.EncounterKey, DefaultEncounterInstance>
+            instancesByKey = new ConcurrentHashMap<>();
+
     private final EncounterJoinPolicy joinPolicy;
     private final Optional<PlayerDirectory> players;
     private final Optional<PartyDirectory> parties;
@@ -61,6 +64,8 @@ public final class DefaultEncounterManager implements EncounterManager {
         DefaultEncounterInstance instance = new DefaultEncounterInstance(id, definition, context);
 
         instances.put(id, instance);
+        instancesByKey.put(
+                io.github.legendaryforge.legendary.core.api.encounter.EncounterKey.of(definition, context), instance);
         return instance;
     }
 
@@ -158,11 +163,18 @@ public final class DefaultEncounterManager implements EncounterManager {
         }
 
         instances.remove(i.instanceId, i);
+        instancesByKey.values().remove(i);
     }
 
     @Override
     public Optional<EncounterInstance> byInstanceId(UUID instanceId) {
         return Optional.ofNullable(instances.get(instanceId));
+    }
+
+    @Override
+    public Optional<EncounterInstance> byKey(io.github.legendaryforge.legendary.core.api.encounter.EncounterKey key) {
+        java.util.Objects.requireNonNull(key, "key");
+        return Optional.ofNullable(instancesByKey.get(key));
     }
 
     private static final class DefaultEncounterInstance implements EncounterInstance {
