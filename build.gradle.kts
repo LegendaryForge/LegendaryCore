@@ -33,7 +33,7 @@ val hasHytaleServerJar = hasHytaleInstall && hytaleServerJar.exists()
 dependencies {
     // Hytale Server API (provided by server at runtime)
     if (hasHytaleServerJar) {
-        implementation(files(hytaleServerJar))
+        compileOnly(files(hytaleServerJar))
     } else {
         logger.lifecycle("Hytale install not detected on this machine/environment; skipping Server API jar dependency. Set hytale_home in gradle.properties for local dev.")
     }
@@ -54,6 +54,12 @@ tasks {
     compileJava {
         options.encoding = Charsets.UTF_8.name()
         options.release = 21
+
+        if (!hasHytaleServerJar) {
+            exclude("**/LegendaryCorePlugin.java")
+            exclude("**/ExampleCommand.java")
+        }
+
     }
     
     // Configure resource processing
