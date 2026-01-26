@@ -24,20 +24,21 @@ val hytaleHome = hytaleHomeProp ?: run {
     }
 }
 
-if (hytaleHome.isBlank()) {
-    throw GradleException("Your Hytale install could not be detected automatically. Set hytale_home in gradle.properties.")
-}
+val hasHytaleInstall = hytaleHome.isNotBlank()
+
 
 val hytaleServerJar = file("$hytaleHome/install/$patchlineProp/package/game/latest/Server/HytaleServer.jar")
-if (!hytaleServerJar.exists()) {
-    throw GradleException("Failed to find HytaleServer.jar at expected path: ${hytaleServerJar.path}. Set hytale_home or patchline in gradle.properties.")
-}
+val hasHytaleServerJar = hasHytaleInstall && hytaleServerJar.exists()
 
 dependencies {
     // Hytale Server API (provided by server at runtime)
-    implementation(files(hytaleServerJar))
-    
-    // Common dependencies (will be bundled in JAR)
+    if (hasHytaleServerJar) {
+        implementation(files(hytaleServerJar))
+    } else {
+        logger.lifecycle("Hytale install not detected on this machine/environment; skipping Server API jar dependency. Set hytale_home in gradle.properties for local dev.")
+    }
+
+
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.jetbrains:annotations:24.1.0")
     
