@@ -9,6 +9,9 @@ import io.github.legendaryforge.legendary.core.api.encounter.EndReason;
 import io.github.legendaryforge.legendary.core.api.encounter.JoinResult;
 import io.github.legendaryforge.legendary.core.api.encounter.ParticipationRole;
 
+import io.github.legendaryforge.legendary.core.internal.encounter.policy.DefaultEncounterJoinPolicy;
+import io.github.legendaryforge.legendary.core.internal.encounter.policy.EncounterJoinPolicy;
+
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -29,6 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class DefaultEncounterManager implements EncounterManager {
 
     private final Map<UUID, DefaultEncounterInstance> instances = new ConcurrentHashMap<>();
+
+    private final EncounterJoinPolicy joinPolicy = new DefaultEncounterJoinPolicy();
 
     @Override
     public EncounterInstance create(EncounterDefinition definition, EncounterContext context) {
@@ -63,20 +68,19 @@ public final class DefaultEncounterManager implements EncounterManager {
         if (i.state == EncounterState.ENDED) {
             return JoinResult.DENIED_STATE;
         }
-
-        if (i.participants.contains(playerId) || i.spectators.contains(playerId)) {
-            // Idempotent success: already in the requested or other role.
-            return JoinResult.SUCCESS;
+        JoinResult policyResult = joinPolicy.evaluate(
+                playerId,
+                i.definition,
+                i.context,
+                role,
+                Optional.empty(),
+                Optional.empty()
+        );
+        if (policyResult != JoinResult.SUCCESS) {
+            return policyResult;
         }
 
-        // Policy checks (platform-agnostic reference behavior):
-        // - Participants: only PUBLIC is joinable without platform semantics.
-        // - Spectators: only allowed when SpectatorPolicy permits.
         if (role == ParticipationRole.PARTICIPANT) {
-            if (i.definition.accessPolicy() != io.github.legendaryforge.legendary.core.api.encounter.EncounterAccessPolicy.PUBLIC) {
-                return JoinResult.DENIED_POLICY;
-            }
-
             int max = i.definition.maxParticipants();
             if (max > 0 && i.participants.size() >= max) {
                 return JoinResult.DENIED_FULL;
@@ -89,11 +93,6 @@ public final class DefaultEncounterManager implements EncounterManager {
             return JoinResult.SUCCESS;
         }
 
-        // SPECTATOR
-        if (i.definition.spectatorPolicy() != io.github.legendaryforge.legendary.core.api.encounter.SpectatorPolicy.ALLOW_VIEW_ONLY) {
-            return JoinResult.DENIED_POLICY;
-        }
-
         int max = i.definition.maxSpectators();
         if (max > 0 && i.spectators.size() >= max) {
             return JoinResult.DENIED_FULL;
@@ -101,6 +100,7 @@ public final class DefaultEncounterManager implements EncounterManager {
 
         i.spectators.add(playerId);
         return JoinResult.SUCCESS;
+
     }
 
     @Override
