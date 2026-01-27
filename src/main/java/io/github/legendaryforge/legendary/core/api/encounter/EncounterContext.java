@@ -8,14 +8,23 @@ import java.util.UUID;
 public interface EncounterContext {
 
     /**
+     * Platform-agnostic anchor for the encounter.
+     */
+    EncounterAnchor anchor();
+
+    /**
      * The party that owns the encounter, if applicable.
      */
-    Optional<UUID> partyId();
+    default Optional<UUID> partyId() {
+        return anchor().partyId();
+    }
 
     /**
      * World identifier (implementation-defined).
      */
-    ResourceId worldId();
+    default ResourceId worldId() {
+        return anchor().worldId();
+    }
 
     /**
      * Implementation-defined metadata (kept generic in v0.1).
