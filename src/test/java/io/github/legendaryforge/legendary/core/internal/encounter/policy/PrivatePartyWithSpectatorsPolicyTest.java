@@ -122,14 +122,6 @@ final class PrivatePartyWithSpectatorsPolicyTest {
         public Set<UUID> spectators() {
             return spectatorSet;
         }
-
-        void addParticipant(UUID id) {
-            participantSet.add(id);
-        }
-
-        void addSpectator(UUID id) {
-            spectatorSet.add(id);
-        }
     }
 
     private static EncounterDefinition def() {

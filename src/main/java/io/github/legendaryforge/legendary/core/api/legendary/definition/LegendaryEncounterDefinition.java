@@ -16,8 +16,8 @@ public interface LegendaryEncounterDefinition extends EncounterDefinition {
     LegendaryEncounterId legendaryId();
 
     /** Human-readable name (may be localized by the platform layer). */
+    @Override
     String displayName();
-
     /** Optional description (may be localized by the platform layer). */
     Optional<String> description();
 
