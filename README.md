@@ -1,5 +1,31 @@
 # LegendaryCore
 
+## Core Guarantees (Current)
+
+LegendaryCore aims to provide a small, deterministic encounter foundation with conservative, fail-closed behavior when required platform information is unavailable.
+
+### Lifecycle determinism
+- Start is emitted **once** when an encounter transitions from CREATED → RUNNING.
+- End is emitted **once** when an encounter transitions to ENDED.
+- Leave is **idempotent** and removes players from participants/spectators without changing encounter state.
+
+### Join and spectator behavior
+- Capacity is enforced for both participants and spectators.
+- Spectator gating is enforced via SpectatorPolicy:
+  - DISALLOW denies spectator joins.
+  - View-only spectator joins are treated as passive viewing and do not start an encounter.
+
+### Access policy behavior
+- PUBLIC participation is allowed by policy.
+- PARTY_ONLY participation is **fail-closed** when party context or party directory information is unavailable.
+- INVITE_ONLY is not implemented in the reference policy and denies by default.
+
+### Non-goals (unless gameplay requires)
+- No additional time/clock refactors.
+- No invite/matchmaking system without a clear gameplay requirement.
+- No persistence guarantees (in-memory reference implementation only).
+
+
 LegendaryCore is a shared foundation library for Legendary mods built for Hytale.
 
 Its purpose is to provide stable, reusable primitives that multiple Legendary mods can depend on,
