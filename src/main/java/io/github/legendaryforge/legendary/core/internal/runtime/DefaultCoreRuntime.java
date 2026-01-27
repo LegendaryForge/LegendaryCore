@@ -57,7 +57,7 @@ public final class DefaultCoreRuntime implements CoreRuntime {
         EventBus bus = new SimpleEventBus();
         this.events = bus;
 
-        EncounterDurationTelemetry durationTelemetry = new EncounterDurationTelemetry(bus);
+        EncounterDurationTelemetry durationTelemetry = new EncounterDurationTelemetry(bus, java.time.Clock.systemUTC());
         bus.subscribe(
                 io.github.legendaryforge.legendary.core.api.encounter.event.EncounterStartedEvent.class,
                 durationTelemetry::onStarted);
