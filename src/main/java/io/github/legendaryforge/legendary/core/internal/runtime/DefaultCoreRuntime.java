@@ -19,6 +19,7 @@ import io.github.legendaryforge.legendary.core.internal.legendary.start.Legendar
 import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultLifecycle;
 import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultServiceRegistry;
 import io.github.legendaryforge.legendary.core.internal.registry.DefaultRegistryAccess;
+import java.time.Clock;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -35,6 +36,8 @@ public final class DefaultCoreRuntime implements CoreRuntime {
     private final ServiceRegistry services;
     private final EventBus events;
     private final EncounterManager encounters;
+
+    private final Clock clock;
 
     private final Optional<PlayerDirectory> players;
     private final Optional<PartyDirectory> parties;
@@ -57,7 +60,9 @@ public final class DefaultCoreRuntime implements CoreRuntime {
         EventBus bus = new SimpleEventBus();
         this.events = bus;
 
-        EncounterDurationTelemetry durationTelemetry = new EncounterDurationTelemetry(bus, java.time.Clock.systemUTC());
+        this.clock = Clock.systemUTC();
+
+        EncounterDurationTelemetry durationTelemetry = new EncounterDurationTelemetry(bus, clock);
         bus.subscribe(
                 io.github.legendaryforge.legendary.core.api.encounter.event.EncounterStartedEvent.class,
                 durationTelemetry::onStarted);
@@ -90,6 +95,7 @@ public final class DefaultCoreRuntime implements CoreRuntime {
 
         this.services = new DefaultServiceRegistry(lifecycle);
         this.events = java.util.Objects.requireNonNull(events, "events");
+        this.clock = Clock.systemUTC();
         this.encounters = java.util.Objects.requireNonNull(encounters, "encounters");
         this.players = java.util.Objects.requireNonNull(players, "players");
         this.parties = java.util.Objects.requireNonNull(parties, "parties");
