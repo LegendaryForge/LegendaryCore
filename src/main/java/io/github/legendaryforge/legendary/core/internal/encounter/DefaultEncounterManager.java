@@ -47,10 +47,7 @@ public final class DefaultEncounterManager implements EncounterManager {
     private final Optional<EventBus> events;
 
     /**
-     * Convenience ctor used by tests: (events, players, parties).
-     */
-    /**
-     * Convenience ctor used by runtime call sites: (players, parties, events).
+     * Convenience ctor used by runtime and most tests: (players, parties, events).
      */
     public DefaultEncounterManager(
             Optional<PlayerDirectory> players, Optional<PartyDirectory> parties, Optional<EventBus> events) {
