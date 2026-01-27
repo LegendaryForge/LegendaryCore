@@ -41,7 +41,7 @@ public final class DefaultCoreRuntime implements CoreRuntime {
     }
 
     public DefaultCoreRuntime(Optional<PlayerDirectory> players, Optional<PartyDirectory> parties) {
-        this(new DefaultEncounterManager(players, parties), players, parties);
+        this(new DefaultEncounterManager(players, parties, Optional.empty()), players, parties);
     }
 
     public DefaultCoreRuntime(EncounterManager encounters) {
