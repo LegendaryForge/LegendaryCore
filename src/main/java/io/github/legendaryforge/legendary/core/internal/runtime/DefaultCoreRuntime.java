@@ -4,12 +4,17 @@ import io.github.legendaryforge.legendary.core.api.encounter.EncounterManager;
 import io.github.legendaryforge.legendary.core.api.event.EventBus;
 import io.github.legendaryforge.legendary.core.api.identity.PartyDirectory;
 import io.github.legendaryforge.legendary.core.api.identity.PlayerDirectory;
+import io.github.legendaryforge.legendary.core.api.legendary.access.DefaultLegendaryAccessPolicy;
 import io.github.legendaryforge.legendary.core.api.lifecycle.Lifecycle;
 import io.github.legendaryforge.legendary.core.api.lifecycle.ServiceRegistry;
 import io.github.legendaryforge.legendary.core.api.platform.CoreRuntime;
 import io.github.legendaryforge.legendary.core.api.registry.RegistryAccess;
 import io.github.legendaryforge.legendary.core.internal.encounter.DefaultEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.event.SimpleEventBus;
+import io.github.legendaryforge.legendary.core.internal.legendary.manager.LegendaryAccessEnforcingEncounterManager;
+import io.github.legendaryforge.legendary.core.internal.legendary.penalty.NoopLegendaryPenaltyStatus;
+import io.github.legendaryforge.legendary.core.internal.legendary.start.DefaultLegendaryStartPolicy;
+import io.github.legendaryforge.legendary.core.internal.legendary.start.LegendaryStartGatingEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultLifecycle;
 import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultServiceRegistry;
 import io.github.legendaryforge.legendary.core.internal.registry.DefaultRegistryAccess;
@@ -41,7 +46,23 @@ public final class DefaultCoreRuntime implements CoreRuntime {
     }
 
     public DefaultCoreRuntime(Optional<PlayerDirectory> players, Optional<PartyDirectory> parties) {
-        this(new DefaultEncounterManager(players, parties, Optional.empty()), players, parties);
+        this.registries = new DefaultRegistryAccess();
+
+        DefaultLifecycle lifecycle = new DefaultLifecycle();
+        this.lifecycle = lifecycle;
+
+        this.services = new DefaultServiceRegistry(lifecycle);
+
+        EventBus bus = new SimpleEventBus();
+        this.events = bus;
+
+        EncounterManager base = new DefaultEncounterManager(players, parties, Optional.of(bus));
+        EncounterManager startGated = new LegendaryStartGatingEncounterManager(
+                base, new DefaultLegendaryStartPolicy(), new NoopLegendaryPenaltyStatus());
+        this.encounters = new LegendaryAccessEnforcingEncounterManager(startGated, new DefaultLegendaryAccessPolicy());
+
+        this.players = Objects.requireNonNull(players, "players");
+        this.parties = Objects.requireNonNull(parties, "parties");
     }
 
     public DefaultCoreRuntime(EncounterManager encounters) {
@@ -49,17 +70,25 @@ public final class DefaultCoreRuntime implements CoreRuntime {
     }
 
     private DefaultCoreRuntime(
-            EncounterManager encounters, Optional<PlayerDirectory> players, Optional<PartyDirectory> parties) {
+            EncounterManager encounters,
+            EventBus events,
+            Optional<PlayerDirectory> players,
+            Optional<PartyDirectory> parties) {
         this.registries = new DefaultRegistryAccess();
 
         DefaultLifecycle lifecycle = new DefaultLifecycle();
         this.lifecycle = lifecycle;
 
         this.services = new DefaultServiceRegistry(lifecycle);
-        this.events = new SimpleEventBus();
-        this.encounters = Objects.requireNonNull(encounters, "encounters");
-        this.players = Objects.requireNonNull(players, "players");
-        this.parties = Objects.requireNonNull(parties, "parties");
+        this.events = java.util.Objects.requireNonNull(events, "events");
+        this.encounters = java.util.Objects.requireNonNull(encounters, "encounters");
+        this.players = java.util.Objects.requireNonNull(players, "players");
+        this.parties = java.util.Objects.requireNonNull(parties, "parties");
+    }
+
+    private DefaultCoreRuntime(
+            EncounterManager encounters, Optional<PlayerDirectory> players, Optional<PartyDirectory> parties) {
+        this(encounters, new SimpleEventBus(), players, parties);
     }
 
     @Override

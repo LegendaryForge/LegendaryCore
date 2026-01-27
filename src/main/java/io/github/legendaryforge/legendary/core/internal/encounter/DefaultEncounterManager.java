@@ -19,6 +19,7 @@ import io.github.legendaryforge.legendary.core.internal.encounter.policy.Default
 import io.github.legendaryforge.legendary.core.internal.encounter.policy.DefaultEncounterReusePolicy;
 import io.github.legendaryforge.legendary.core.internal.encounter.policy.EncounterJoinPolicy;
 import io.github.legendaryforge.legendary.core.internal.encounter.policy.EncounterReusePolicy;
+import io.github.legendaryforge.legendary.core.internal.legendary.instance.LegendaryEncounterInstanceView;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -86,7 +87,21 @@ public final class DefaultEncounterManager implements EncounterManager {
                 return existing;
             }
             UUID instanceId = UUID.randomUUID();
-            DefaultEncounterInstance created = new DefaultEncounterInstance(instanceId, k, definition, context);
+            java.util.Optional<java.util.UUID> ownerPartyId = java.util.Optional.empty();
+            java.util.Set<java.util.UUID> ownerPartyMembersAtStart = java.util.Set.of();
+
+            if (definition
+                    instanceof
+                    io.github.legendaryforge.legendary.core.api.legendary.definition.LegendaryEncounterDefinition) {
+                ownerPartyId = context.partyId();
+                if (ownerPartyId.isPresent() && parties.isPresent()) {
+                    ownerPartyMembersAtStart =
+                            parties.get().members(ownerPartyId.get()).orElse(java.util.Set.of());
+                }
+            }
+
+            DefaultEncounterInstance created = new DefaultEncounterInstance(
+                    instanceId, k, definition, context, ownerPartyId, ownerPartyMembersAtStart);
             instances.put(instanceId, created);
             post(new EncounterCreatedEvent(k, instanceId, definition.id(), context.anchor()));
             return created;
@@ -166,23 +181,35 @@ public final class DefaultEncounterManager implements EncounterManager {
         events.ifPresent(bus -> bus.post(event));
     }
 
-    private static final class DefaultEncounterInstance implements EncounterInstance {
+    private static final class DefaultEncounterInstance implements EncounterInstance, LegendaryEncounterInstanceView {
 
         private final UUID instanceId;
         private final EncounterKey key;
         private final EncounterDefinition definition;
         private final EncounterContext context;
 
+        // Legendary-only metadata (populated when definition is a LegendaryEncounterDefinition)
+        private final java.util.Optional<java.util.UUID> ownerPartyId;
+        private final java.util.Set<java.util.UUID> ownerPartyMembersAtStart;
+
         private volatile EncounterState state;
         private final Set<UUID> participants = new LinkedHashSet<>();
         private final Set<UUID> spectators = new LinkedHashSet<>();
 
         private DefaultEncounterInstance(
-                UUID instanceId, EncounterKey key, EncounterDefinition definition, EncounterContext context) {
+                UUID instanceId,
+                EncounterKey key,
+                EncounterDefinition definition,
+                EncounterContext context,
+                java.util.Optional<java.util.UUID> ownerPartyId,
+                java.util.Set<java.util.UUID> ownerPartyMembersAtStart) {
             this.instanceId = instanceId;
             this.key = key;
             this.definition = definition;
             this.context = context;
+            this.ownerPartyId = java.util.Objects.requireNonNull(ownerPartyId, "ownerPartyId");
+            this.ownerPartyMembersAtStart = java.util.Set.copyOf(
+                    java.util.Objects.requireNonNull(ownerPartyMembersAtStart, "ownerPartyMembersAtStart"));
             this.state = EncounterState.CREATED;
         }
 
@@ -204,6 +231,16 @@ public final class DefaultEncounterManager implements EncounterManager {
         @Override
         public Set<UUID> participants() {
             return participants;
+        }
+
+        @Override
+        public java.util.Optional<java.util.UUID> ownerPartyId() {
+            return ownerPartyId;
+        }
+
+        @Override
+        public java.util.Set<java.util.UUID> ownerPartyMembersAtStart() {
+            return ownerPartyMembersAtStart;
         }
 
         @Override
