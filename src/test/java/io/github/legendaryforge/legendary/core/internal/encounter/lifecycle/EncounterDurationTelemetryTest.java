@@ -20,6 +20,7 @@ import io.github.legendaryforge.legendary.core.api.event.EventListener;
 import io.github.legendaryforge.legendary.core.api.event.Subscription;
 import io.github.legendaryforge.legendary.core.api.id.ResourceId;
 import io.github.legendaryforge.legendary.core.internal.encounter.DefaultEncounterManager;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -71,7 +72,9 @@ final class EncounterDurationTelemetryTest {
     void durationMeasuredEmittedAfterStartedThenEnded() {
         RecordingEventBus bus = new RecordingEventBus();
 
-        EncounterDurationTelemetry telemetry = new EncounterDurationTelemetry(bus);
+        MutableClock clock = new MutableClock(1_000L, ZoneId.of("UTC"));
+
+        EncounterDurationTelemetry telemetry = new EncounterDurationTelemetry(bus, clock);
         bus.subscribe(EncounterStartedEvent.class, telemetry::onStarted);
         bus.subscribe(EncounterEndedEvent.class, telemetry::onEnded);
 
@@ -80,6 +83,7 @@ final class EncounterDurationTelemetryTest {
 
         UUID p = UUID.fromString("00000000-0000-0000-0000-0000000000AA");
         mgr.join(p, inst, ParticipationRole.PARTICIPANT);
+        clock.advanceMillis(1_500L);
         mgr.end(inst, EndReason.COMPLETED);
 
         boolean found = false;
@@ -87,7 +91,7 @@ final class EncounterDurationTelemetryTest {
             if (e instanceof EncounterDurationMeasuredEvent dm) {
                 found = true;
                 assertEquals(EndReason.COMPLETED, dm.reason());
-                assertTrue(dm.durationMillis() >= 0L);
+                assertEquals(1_500L, dm.durationMillis());
             }
         }
         assertTrue(found);
