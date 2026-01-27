@@ -12,6 +12,7 @@ import io.github.legendaryforge.legendary.core.api.encounter.ParticipationRole;
 import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterCreatedEvent;
 import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterEndedEvent;
 import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterReusedEvent;
+import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterStartedEvent;
 import io.github.legendaryforge.legendary.core.api.event.EventBus;
 import io.github.legendaryforge.legendary.core.api.identity.PartyDirectory;
 import io.github.legendaryforge.legendary.core.api.identity.PlayerDirectory;
@@ -138,6 +139,12 @@ public final class DefaultEncounterManager implements EncounterManager {
                 dei.spectators.add(playerId);
                 dei.participants.remove(playerId);
             }
+        }
+
+        if (role == ParticipationRole.PARTICIPANT && dei.state == EncounterState.CREATED) {
+            dei.state = EncounterState.RUNNING;
+            post(new EncounterStartedEvent(
+                    dei.key, dei.instanceId, dei.definition.id(), dei.context.anchor(), playerId));
         }
 
         return JoinResult.SUCCESS;
