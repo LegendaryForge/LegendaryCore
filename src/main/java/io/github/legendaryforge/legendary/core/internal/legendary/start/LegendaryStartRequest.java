@@ -12,35 +12,23 @@ import java.util.UUID;
 public final class LegendaryStartRequest {
 
     private final LegendaryEncounterId encounterId;
-    private final UUID triggeringPlayerId;
     private final UUID partyId;
     private final boolean anyPartyMemberHasActivePenalty;
 
     private LegendaryStartRequest(
-            LegendaryEncounterId encounterId,
-            UUID triggeringPlayerId,
-            UUID partyId,
-            boolean anyPartyMemberHasActivePenalty) {
+            LegendaryEncounterId encounterId, UUID partyId, boolean anyPartyMemberHasActivePenalty) {
         this.encounterId = Objects.requireNonNull(encounterId, "encounterId");
-        this.triggeringPlayerId = Objects.requireNonNull(triggeringPlayerId, "triggeringPlayerId");
         this.partyId = Objects.requireNonNull(partyId, "partyId");
         this.anyPartyMemberHasActivePenalty = anyPartyMemberHasActivePenalty;
     }
 
     public static LegendaryStartRequest of(
-            LegendaryEncounterId encounterId,
-            UUID triggeringPlayerId,
-            UUID partyId,
-            boolean anyPartyMemberHasActivePenalty) {
-        return new LegendaryStartRequest(encounterId, triggeringPlayerId, partyId, anyPartyMemberHasActivePenalty);
+            LegendaryEncounterId encounterId, UUID partyId, boolean anyPartyMemberHasActivePenalty) {
+        return new LegendaryStartRequest(encounterId, partyId, anyPartyMemberHasActivePenalty);
     }
 
     public LegendaryEncounterId encounterId() {
         return encounterId;
-    }
-
-    public UUID triggeringPlayerId() {
-        return triggeringPlayerId;
     }
 
     public UUID partyId() {

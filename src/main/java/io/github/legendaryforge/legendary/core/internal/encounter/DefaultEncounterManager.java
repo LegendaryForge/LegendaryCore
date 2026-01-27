@@ -19,6 +19,7 @@ import io.github.legendaryforge.legendary.core.internal.encounter.policy.Default
 import io.github.legendaryforge.legendary.core.internal.encounter.policy.DefaultEncounterReusePolicy;
 import io.github.legendaryforge.legendary.core.internal.encounter.policy.EncounterJoinPolicy;
 import io.github.legendaryforge.legendary.core.internal.encounter.policy.EncounterReusePolicy;
+import io.github.legendaryforge.legendary.core.internal.legendary.instance.LegendaryEncounterInstanceView;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -180,7 +181,7 @@ public final class DefaultEncounterManager implements EncounterManager {
         events.ifPresent(bus -> bus.post(event));
     }
 
-    private static final class DefaultEncounterInstance implements EncounterInstance {
+    private static final class DefaultEncounterInstance implements EncounterInstance, LegendaryEncounterInstanceView {
 
         private final UUID instanceId;
         private final EncounterKey key;
@@ -230,6 +231,16 @@ public final class DefaultEncounterManager implements EncounterManager {
         @Override
         public Set<UUID> participants() {
             return participants;
+        }
+
+        @Override
+        public java.util.Optional<java.util.UUID> ownerPartyId() {
+            return ownerPartyId;
+        }
+
+        @Override
+        public java.util.Set<java.util.UUID> ownerPartyMembersAtStart() {
+            return ownerPartyMembersAtStart;
         }
 
         @Override
