@@ -7,6 +7,7 @@ import io.github.legendaryforge.legendary.core.api.identity.PlayerDirectory;
 import io.github.legendaryforge.legendary.core.api.lifecycle.Lifecycle;
 import io.github.legendaryforge.legendary.core.api.lifecycle.ServiceRegistry;
 import io.github.legendaryforge.legendary.core.api.registry.RegistryAccess;
+import java.time.Clock;
 import java.util.Optional;
 
 /**
@@ -44,5 +45,14 @@ public interface CoreRuntime {
      */
     default Optional<PartyDirectory> parties() {
         return Optional.empty();
+    }
+
+    /**
+     * Canonical time source for runtime services and telemetry.
+     *
+     * <p>Defaults to UTC system clock. Platforms may override to control time behavior.
+     */
+    default Clock clock() {
+        return Clock.systemUTC();
     }
 }
