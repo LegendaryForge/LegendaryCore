@@ -131,10 +131,16 @@ public final class DefaultEncounterManager implements EncounterManager {
         }
 
         boolean startedNow = false;
+        JoinResult result = JoinResult.SUCCESS;
 
         synchronized (dei) {
             switch (role) {
                 case PARTICIPANT -> {
+                    int max = dei.definition.maxParticipants();
+                    if (!dei.participants.contains(playerId) && dei.participants.size() >= max) {
+                        result = JoinResult.DENIED_FULL;
+                        break;
+                    }
                     dei.participants.add(playerId);
                     dei.spectators.remove(playerId);
                     if (dei.state == EncounterState.CREATED) {
@@ -143,10 +149,19 @@ public final class DefaultEncounterManager implements EncounterManager {
                     }
                 }
                 case SPECTATOR -> {
+                    int max = dei.definition.maxSpectators();
+                    if (!dei.spectators.contains(playerId) && dei.spectators.size() >= max) {
+                        result = JoinResult.DENIED_FULL;
+                        break;
+                    }
                     dei.spectators.add(playerId);
                     dei.participants.remove(playerId);
                 }
             }
+        }
+
+        if (result != JoinResult.SUCCESS) {
+            return result;
         }
 
         if (startedNow) {
