@@ -130,19 +130,26 @@ public final class DefaultEncounterManager implements EncounterManager {
             return policyResult;
         }
 
-        switch (role) {
-            case PARTICIPANT -> {
-                dei.participants.add(playerId);
-                dei.spectators.remove(playerId);
-            }
-            case SPECTATOR -> {
-                dei.spectators.add(playerId);
-                dei.participants.remove(playerId);
+        boolean startedNow = false;
+
+        synchronized (dei) {
+            switch (role) {
+                case PARTICIPANT -> {
+                    dei.participants.add(playerId);
+                    dei.spectators.remove(playerId);
+                    if (dei.state == EncounterState.CREATED) {
+                        dei.state = EncounterState.RUNNING;
+                        startedNow = true;
+                    }
+                }
+                case SPECTATOR -> {
+                    dei.spectators.add(playerId);
+                    dei.participants.remove(playerId);
+                }
             }
         }
 
-        if (role == ParticipationRole.PARTICIPANT && dei.state == EncounterState.CREATED) {
-            dei.state = EncounterState.RUNNING;
+        if (startedNow) {
             post(new EncounterStartedEvent(
                     dei.key, dei.instanceId, dei.definition.id(), dei.context.anchor(), playerId));
         }
@@ -167,8 +174,19 @@ public final class DefaultEncounterManager implements EncounterManager {
         Objects.requireNonNull(reason, "reason");
 
         if (instance instanceof DefaultEncounterInstance dei) {
-            dei.state = EncounterState.ENDED;
-            post(new EncounterEndedEvent(dei.key, dei.instanceId, dei.definition.id(), dei.context.anchor(), reason));
+            boolean endedNow = false;
+
+            synchronized (dei) {
+                if (dei.state != EncounterState.ENDED) {
+                    dei.state = EncounterState.ENDED;
+                    endedNow = true;
+                }
+            }
+
+            if (endedNow) {
+                post(new EncounterEndedEvent(
+                        dei.key, dei.instanceId, dei.definition.id(), dei.context.anchor(), reason));
+            }
         }
     }
 
