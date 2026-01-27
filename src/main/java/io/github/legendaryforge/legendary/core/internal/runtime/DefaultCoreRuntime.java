@@ -46,10 +46,18 @@ public final class DefaultCoreRuntime implements CoreRuntime {
      * Platform-agnostic default constructor using the internal reference EncounterManager.
      */
     public DefaultCoreRuntime() {
-        this(Optional.empty(), Optional.empty());
+        this(Optional.empty(), Optional.empty(), Clock.systemUTC());
+    }
+
+    public DefaultCoreRuntime(Clock clock) {
+        this(Optional.empty(), Optional.empty(), clock);
     }
 
     public DefaultCoreRuntime(Optional<PlayerDirectory> players, Optional<PartyDirectory> parties) {
+        this(players, parties, Clock.systemUTC());
+    }
+
+    public DefaultCoreRuntime(Optional<PlayerDirectory> players, Optional<PartyDirectory> parties, Clock clock) {
         this.registries = new DefaultRegistryAccess();
 
         DefaultLifecycle lifecycle = new DefaultLifecycle();
@@ -60,7 +68,7 @@ public final class DefaultCoreRuntime implements CoreRuntime {
         EventBus bus = new SimpleEventBus();
         this.events = bus;
 
-        this.clock = Clock.systemUTC();
+        this.clock = Objects.requireNonNull(clock, "clock");
 
         EncounterDurationTelemetry durationTelemetry = new EncounterDurationTelemetry(bus, clock);
         bus.subscribe(
@@ -129,6 +137,11 @@ public final class DefaultCoreRuntime implements CoreRuntime {
     @Override
     public EncounterManager encounters() {
         return encounters;
+    }
+
+    @Override
+    public Clock clock() {
+        return clock;
     }
 
     @Override
