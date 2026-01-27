@@ -1,8 +1,14 @@
 package io.github.legendaryforge.legendary.core.internal.runtime;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.github.legendaryforge.legendary.core.api.encounter.EncounterManager;
 import io.github.legendaryforge.legendary.core.api.platform.CoreRuntime;
+import io.github.legendaryforge.legendary.core.internal.encounter.DefaultEncounterManager;
+import io.github.legendaryforge.legendary.core.internal.legendary.manager.LegendaryAccessEnforcingEncounterManager;
+import io.github.legendaryforge.legendary.core.internal.legendary.start.LegendaryStartGatingEncounterManager;
+import java.lang.reflect.Field;
 import org.junit.jupiter.api.Test;
 
 final class DefaultCoreRuntimeWiringTest {
@@ -16,5 +22,30 @@ final class DefaultCoreRuntimeWiringTest {
         assertNotNull(runtime.services(), "services");
         assertNotNull(runtime.events(), "events");
         assertNotNull(runtime.encounters(), "encounters");
+    }
+
+    @Test
+    void defaultConstructorWiresLegendaryEncounterManagersInCorrectOrder() {
+        CoreRuntime runtime = new DefaultCoreRuntime();
+
+        EncounterManager encounters = runtime.encounters();
+        assertTrue(encounters instanceof LegendaryAccessEnforcingEncounterManager, "top-level should enforce access");
+
+        EncounterManager startGated = readDelegate(encounters);
+        assertTrue(startGated instanceof LegendaryStartGatingEncounterManager, "second-level should gate start");
+
+        EncounterManager base = readDelegate(startGated);
+        assertTrue(base instanceof DefaultEncounterManager, "base should be DefaultEncounterManager");
+    }
+
+    private static EncounterManager readDelegate(Object wrapper) {
+        try {
+            Field f = wrapper.getClass().getDeclaredField("delegate");
+            f.setAccessible(true);
+            return (EncounterManager) f.get(wrapper);
+        } catch (ReflectiveOperationException e) {
+            throw new LinkageError(
+                    "Failed to read delegate from " + wrapper.getClass().getName(), e);
+        }
     }
 }
