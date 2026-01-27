@@ -135,6 +135,8 @@ tasks.withType<JavaCompile>().configureEach {
     options.errorprone.isEnabled.set(true)
     (options.errorprone as ErrorProneOptions).disableWarningsInGeneratedCode.set(true)
     (options.errorprone as ErrorProneOptions).errorproneArgs.add("-XepAllErrorsAsWarnings")
+    (options.errorprone as ErrorProneOptions).errorproneArgs.add("-Xep:EqualsHashCode:ERROR")
+    (options.errorprone as ErrorProneOptions).errorproneArgs.add("-Xep:MissingOverride:ERROR")
 
     if (!hasHytaleServerJar) {
         exclude("**/LegendaryCorePlugin.java")
