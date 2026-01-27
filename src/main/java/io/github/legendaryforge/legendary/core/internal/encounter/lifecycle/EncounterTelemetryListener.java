@@ -10,8 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public interface EncounterTelemetryListener {
+
+    Logger LOG = Logger.getLogger(EncounterTelemetryListener.class.getName());
+
     void onCreated(EncounterCreatedEvent event);
 
     void onReused(EncounterReusedEvent event);
@@ -26,12 +32,23 @@ public interface EncounterTelemetryListener {
         List<Subscription> subs = new ArrayList<>();
         events.ifPresent(bus -> {
             for (EncounterTelemetryListener l : listeners) {
-                subs.add(bus.subscribe(EncounterCreatedEvent.class, l::onCreated));
-                subs.add(bus.subscribe(EncounterReusedEvent.class, l::onReused));
-                subs.add(bus.subscribe(EncounterStartedEvent.class, l::onStarted));
-                subs.add(bus.subscribe(EncounterEndedEvent.class, l::onEnded));
+                subs.add(bus.subscribe(EncounterCreatedEvent.class, e -> safeInvoke("onCreated", l, e, l::onCreated)));
+                subs.add(bus.subscribe(EncounterReusedEvent.class, e -> safeInvoke("onReused", l, e, l::onReused)));
+                subs.add(bus.subscribe(EncounterStartedEvent.class, e -> safeInvoke("onStarted", l, e, l::onStarted)));
+                subs.add(bus.subscribe(EncounterEndedEvent.class, e -> safeInvoke("onEnded", l, e, l::onEnded)));
             }
         });
         return subs;
+    }
+
+    private static <E> void safeInvoke(String hook, EncounterTelemetryListener listener, E event, Consumer<E> invoke) {
+        try {
+            invoke.accept(event);
+        } catch (Throwable t) {
+            LOG.log(
+                    Level.WARNING,
+                    "EncounterTelemetryListener " + listener.getClass().getName() + " threw in " + hook,
+                    t);
+        }
     }
 }
