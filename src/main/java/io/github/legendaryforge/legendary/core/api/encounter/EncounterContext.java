@@ -27,7 +27,7 @@ public interface EncounterContext {
     }
 
     /**
-     * Implementation-defined metadata (kept generic in v0.1).
+     * Implementation-defined metadata for platform/mod use. No stable schema is guaranteed by the core API.
      */
     Map<String, Object> metadata();
 }
