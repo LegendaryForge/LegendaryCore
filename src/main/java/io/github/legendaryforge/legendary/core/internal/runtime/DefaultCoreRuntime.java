@@ -14,6 +14,7 @@ import io.github.legendaryforge.legendary.core.internal.encounter.lifecycle.Enco
 import io.github.legendaryforge.legendary.core.internal.event.SimpleEventBus;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaInvariantBridge;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaInvariantRegistry;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.PhaseGateInvariant;
 import io.github.legendaryforge.legendary.core.internal.legendary.manager.LegendaryAccessEnforcingEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.legendary.penalty.NoopLegendaryPenaltyStatus;
 import io.github.legendaryforge.legendary.core.internal.legendary.start.DefaultLegendaryStartPolicy;
@@ -80,7 +81,8 @@ public final class DefaultCoreRuntime implements CoreRuntime {
                 io.github.legendaryforge.legendary.core.api.encounter.event.EncounterEndedEvent.class,
                 durationTelemetry::onEnded);
 
-ArenaInvariantRegistry arenaRegistry = ArenaInvariantRegistry.empty();
+PhaseGateInvariant phaseGate = new PhaseGateInvariant();
+ArenaInvariantRegistry arenaRegistry = defId -> java.util.List.of(phaseGate);
 ArenaInvariantBridge.bind(bus, arenaRegistry);
 
         EncounterManager base = new DefaultEncounterManager(players, parties, Optional.of(bus));
