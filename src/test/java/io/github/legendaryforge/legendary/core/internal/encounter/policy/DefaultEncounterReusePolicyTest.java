@@ -14,6 +14,7 @@ import io.github.legendaryforge.legendary.core.api.encounter.EncounterState;
 import io.github.legendaryforge.legendary.core.api.encounter.EndReason;
 import io.github.legendaryforge.legendary.core.api.encounter.ParticipationRole;
 import io.github.legendaryforge.legendary.core.api.encounter.SpectatorPolicy;
+import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterCleanupEvent;
 import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterCreatedEvent;
 import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterEndedEvent;
 import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterReusedEvent;
@@ -93,13 +94,15 @@ final class DefaultEncounterReusePolicyTest {
         mgr.end(a, io.github.legendaryforge.legendary.core.api.encounter.EndReason.COMPLETED);
         EncounterInstance c = mgr.create(DEF, CTX);
         assertNotEquals(a.instanceId(), c.instanceId());
-        assertEquals(4, events.size());
+        assertEquals(5, events.size());
         assertTrue(events.get(2) instanceof EncounterEndedEvent);
-        assertTrue(events.get(3) instanceof EncounterCreatedEvent);
+        assertTrue(events.get(3) instanceof EncounterCleanupEvent);
+        assertTrue(events.get(4) instanceof EncounterCreatedEvent);
         EncounterEndedEvent ended = (EncounterEndedEvent) events.get(2);
         assertEquals(EndReason.COMPLETED, ended.reason());
     }
 
+    @Test
     void reuseActivePolicy_isAtomic_underConcurrency() throws Exception {
         int n = 20;
         RecordingEventBus bus = new RecordingEventBus();

@@ -9,6 +9,7 @@ import io.github.legendaryforge.legendary.core.api.encounter.EncounterState;
 import io.github.legendaryforge.legendary.core.api.encounter.EndReason;
 import io.github.legendaryforge.legendary.core.api.encounter.JoinResult;
 import io.github.legendaryforge.legendary.core.api.encounter.ParticipationRole;
+import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterCleanupEvent;
 import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterCreatedEvent;
 import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterEndedEvent;
 import io.github.legendaryforge.legendary.core.api.encounter.event.EncounterReusedEvent;
@@ -198,6 +199,7 @@ public final class DefaultEncounterManager implements EncounterManager {
             if (endedNow) {
                 post(new EncounterEndedEvent(
                         dei.key, dei.instanceId, dei.definition.id(), dei.context.anchor(), reason));
+                post(new EncounterCleanupEvent(dei.instanceId));
             }
         }
     }
