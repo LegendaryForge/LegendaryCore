@@ -22,6 +22,7 @@ import io.github.legendaryforge.legendary.core.internal.legendary.arena.Legendar
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.PhaseGateInvariant;
 import io.github.legendaryforge.legendary.core.internal.legendary.manager.LegendaryAccessEnforcingEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.legendary.penalty.NoopLegendaryPenaltyStatus;
+import io.github.legendaryforge.legendary.core.internal.legendary.penalty.RevocationPenaltyBridge;
 import io.github.legendaryforge.legendary.core.internal.legendary.start.DefaultLegendaryStartPolicy;
 import io.github.legendaryforge.legendary.core.internal.legendary.start.LegendaryStartGatingEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultLifecycle;
@@ -104,6 +105,9 @@ public final class DefaultCoreRuntime implements CoreRuntime {
         ArenaRevocationController revocationController =
                 new ArenaRevocationController(revocations, bus, legendaryInstanceIds::contains);
         this.services.register(ArenaRevocationController.class, revocationController);
+
+        RevocationPenaltyBridge penaltyBridge = new RevocationPenaltyBridge(bus);
+        this.services.register(RevocationPenaltyBridge.class, penaltyBridge);
 
         bus.subscribe(
                 io.github.legendaryforge.legendary.core.api.encounter.event.EncounterEndedEvent.class,
