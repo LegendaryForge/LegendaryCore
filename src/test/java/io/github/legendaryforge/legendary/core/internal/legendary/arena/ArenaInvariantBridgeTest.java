@@ -46,7 +46,8 @@ final class ArenaInvariantBridgeTest {
         ArenaInvariantRegistry registry = id -> id.equals(defId) ? List.of(inv) : List.of();
         ArenaInvariantBridge.bind(bus, registry);
 
-        EncounterAnchor anchor = new EncounterAnchor(ResourceId.parse("test:world"), Optional.empty(), Optional.empty());
+        EncounterAnchor anchor =
+                new EncounterAnchor(ResourceId.parse("test:world"), Optional.empty(), Optional.empty());
         EncounterKey key = new EncounterKey(ResourceId.parse("test:encounter"), anchor);
 
         bus.post(new EncounterStartedEvent(key, instanceId, defId, anchor, UUID.randomUUID()));

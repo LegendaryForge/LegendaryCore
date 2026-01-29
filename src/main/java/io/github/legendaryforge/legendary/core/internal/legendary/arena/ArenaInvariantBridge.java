@@ -22,7 +22,9 @@ import java.util.function.Predicate;
  */
 public final class ArenaInvariantBridge {
 
-    private static boolean always(UUID id) { return true; }
+    private static boolean always(UUID id) {
+        return true;
+    }
 
     private static void noop(UUID id) {}
 
@@ -37,7 +39,8 @@ public final class ArenaInvariantBridge {
         this(registry, ArenaInvariantBridge::always, ArenaInvariantBridge::noop);
     }
 
-    public ArenaInvariantBridge(ArenaInvariantRegistry registry, Predicate<UUID> applyFilter, Consumer<UUID> onCleanupPost) {
+    public ArenaInvariantBridge(
+            ArenaInvariantRegistry registry, Predicate<UUID> applyFilter, Consumer<UUID> onCleanupPost) {
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applyFilter = Objects.requireNonNull(applyFilter, "applyFilter");
         this.onCleanupPost = Objects.requireNonNull(onCleanupPost, "onCleanupPost");
@@ -84,7 +87,8 @@ public final class ArenaInvariantBridge {
         return bind(bus, registry, ArenaInvariantBridge::always, ArenaInvariantBridge::noop);
     }
 
-    public static List<Subscription> bind(EventBus bus, ArenaInvariantRegistry registry, Predicate<UUID> applyFilter, Consumer<UUID> onCleanupPost) {
+    public static List<Subscription> bind(
+            EventBus bus, ArenaInvariantRegistry registry, Predicate<UUID> applyFilter, Consumer<UUID> onCleanupPost) {
         Objects.requireNonNull(bus, "bus");
         Objects.requireNonNull(registry, "registry");
 

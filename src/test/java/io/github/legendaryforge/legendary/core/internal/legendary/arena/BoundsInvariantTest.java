@@ -1,15 +1,15 @@
 package io.github.legendaryforge.legendary.core.internal.legendary.arena;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.github.legendaryforge.legendary.core.api.event.EventBus;
+import io.github.legendaryforge.legendary.core.internal.event.SimpleEventBus;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.event.ArenaBoundsViolatedEvent;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.event.ArenaParticipationRevokedEvent;
-import io.github.legendaryforge.legendary.core.internal.event.SimpleEventBus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 final class BoundsInvariantTest {
 

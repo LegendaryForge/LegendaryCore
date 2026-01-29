@@ -15,7 +15,9 @@ public final class ArenaRevocationTracker {
     public void revoke(UUID instanceId, UUID playerId) {
         Objects.requireNonNull(instanceId, "instanceId");
         Objects.requireNonNull(playerId, "playerId");
-        revokedByInstance.computeIfAbsent(instanceId, ignored -> ConcurrentHashMap.newKeySet()).add(playerId);
+        revokedByInstance
+                .computeIfAbsent(instanceId, ignored -> ConcurrentHashMap.newKeySet())
+                .add(playerId);
     }
 
     public boolean isRevoked(UUID instanceId, UUID playerId) {

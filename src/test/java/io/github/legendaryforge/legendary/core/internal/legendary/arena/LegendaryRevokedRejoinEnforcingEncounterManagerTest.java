@@ -1,5 +1,7 @@
 package io.github.legendaryforge.legendary.core.internal.legendary.arena;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterDefinition;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterInstance;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterKey;
@@ -15,8 +17,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 final class LegendaryRevokedRejoinEnforcingEncounterManagerTest {
 
@@ -36,12 +36,34 @@ final class LegendaryRevokedRejoinEnforcingEncounterManagerTest {
 
         AtomicInteger delegateCalls = new AtomicInteger();
         EncounterManager delegate = new EncounterManager() {
-            @Override public EncounterInstance create(EncounterDefinition definition, io.github.legendaryforge.legendary.core.api.encounter.EncounterContext context) { return null; }
-            @Override public JoinResult join(UUID pid, EncounterInstance inst, ParticipationRole role) { delegateCalls.incrementAndGet(); return JoinResult.SUCCESS; }
-            @Override public void leave(UUID pid, EncounterInstance inst) {}
-            @Override public void end(EncounterInstance inst, EndReason reason) {}
-            @Override public Optional<EncounterInstance> byInstanceId(UUID id) { return Optional.empty(); }
-            @Override public Optional<EncounterInstance> byKey(EncounterKey key) { return Optional.empty(); }
+            @Override
+            public EncounterInstance create(
+                    EncounterDefinition definition,
+                    io.github.legendaryforge.legendary.core.api.encounter.EncounterContext context) {
+                return null;
+            }
+
+            @Override
+            public JoinResult join(UUID pid, EncounterInstance inst, ParticipationRole role) {
+                delegateCalls.incrementAndGet();
+                return JoinResult.SUCCESS;
+            }
+
+            @Override
+            public void leave(UUID pid, EncounterInstance inst) {}
+
+            @Override
+            public void end(EncounterInstance inst, EndReason reason) {}
+
+            @Override
+            public Optional<EncounterInstance> byInstanceId(UUID id) {
+                return Optional.empty();
+            }
+
+            @Override
+            public Optional<EncounterInstance> byKey(EncounterKey key) {
+                return Optional.empty();
+            }
         };
 
         EncounterManager mgr = new LegendaryRevokedRejoinEnforcingEncounterManager(
@@ -60,7 +82,7 @@ final class LegendaryRevokedRejoinEnforcingEncounterManagerTest {
         EncounterDefinition def = proxyEncounterDefinition();
         return (EncounterInstance) Proxy.newProxyInstance(
                 EncounterInstance.class.getClassLoader(),
-                new Class<?>[] { EncounterInstance.class },
+                new Class<?>[] {EncounterInstance.class},
                 (proxy, method, args) -> {
                     return switch (method.getName()) {
                         case "instanceId" -> instanceId;
@@ -81,12 +103,14 @@ final class LegendaryRevokedRejoinEnforcingEncounterManagerTest {
         ResourceId id = ResourceId.parse("test:any");
         return (EncounterDefinition) Proxy.newProxyInstance(
                 EncounterDefinition.class.getClassLoader(),
-                new Class<?>[] { EncounterDefinition.class },
+                new Class<?>[] {EncounterDefinition.class},
                 (proxy, method, args) -> switch (method.getName()) {
                     case "id" -> id;
                     case "displayName" -> "test";
-                    case "accessPolicy" -> io.github.legendaryforge.legendary.core.api.encounter.EncounterAccessPolicy.PUBLIC;
-                    case "spectatorPolicy" -> io.github.legendaryforge.legendary.core.api.encounter.SpectatorPolicy.ALLOW_VIEW_ONLY;
+                    case "accessPolicy" ->
+                        io.github.legendaryforge.legendary.core.api.encounter.EncounterAccessPolicy.PUBLIC;
+                    case "spectatorPolicy" ->
+                        io.github.legendaryforge.legendary.core.api.encounter.SpectatorPolicy.ALLOW_VIEW_ONLY;
                     case "maxParticipants" -> 0;
                     case "maxSpectators" -> 0;
                     default -> null;

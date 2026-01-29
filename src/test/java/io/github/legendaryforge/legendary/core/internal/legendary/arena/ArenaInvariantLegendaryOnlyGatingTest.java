@@ -1,5 +1,7 @@
 package io.github.legendaryforge.legendary.core.internal.legendary.arena;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterAnchor;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterKey;
 import io.github.legendaryforge.legendary.core.api.encounter.EndReason;
@@ -15,8 +17,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 final class ArenaInvariantLegendaryOnlyGatingTest {
 
     @Test
@@ -26,8 +26,8 @@ final class ArenaInvariantLegendaryOnlyGatingTest {
         Set<ResourceId> legendary = ConcurrentHashMap.newKeySet();
         PhaseGateInvariant phase = new PhaseGateInvariant();
 
-        ArenaInvariantRegistry reg = defId ->
-                legendary.contains(defId) ? java.util.List.of(phase) : java.util.List.of();
+        ArenaInvariantRegistry reg =
+                defId -> legendary.contains(defId) ? java.util.List.of(phase) : java.util.List.of();
 
         ArenaInvariantBridge.bind(bus, reg);
 
@@ -38,17 +38,21 @@ final class ArenaInvariantLegendaryOnlyGatingTest {
         ResourceId legendaryDef = ResourceId.parse("test:legendary_def");
         legendary.add(legendaryDef);
 
-        EncounterAnchor anchor = new EncounterAnchor(ResourceId.parse("test:world"), Optional.empty(), Optional.empty());
+        EncounterAnchor anchor =
+                new EncounterAnchor(ResourceId.parse("test:world"), Optional.empty(), Optional.empty());
 
         // Normal: should not track
-        bus.post(new EncounterStartedEvent(new EncounterKey(normalDef, anchor), normalInstance, normalDef, anchor, UUID.randomUUID()));
+        bus.post(new EncounterStartedEvent(
+                new EncounterKey(normalDef, anchor), normalInstance, normalDef, anchor, UUID.randomUUID()));
         assertTrue(phase.phaseOf(normalInstance).isEmpty());
 
         // Legendary: should track start/end/cleanup
-        bus.post(new EncounterStartedEvent(new EncounterKey(legendaryDef, anchor), legendaryInstance, legendaryDef, anchor, UUID.randomUUID()));
+        bus.post(new EncounterStartedEvent(
+                new EncounterKey(legendaryDef, anchor), legendaryInstance, legendaryDef, anchor, UUID.randomUUID()));
         assertEquals(ArenaPhase.ACTIVE, phase.phaseOf(legendaryInstance).orElseThrow());
 
-        bus.post(new EncounterEndedEvent(new EncounterKey(legendaryDef, anchor), legendaryInstance, legendaryDef, anchor, EndReason.COMPLETED));
+        bus.post(new EncounterEndedEvent(
+                new EncounterKey(legendaryDef, anchor), legendaryInstance, legendaryDef, anchor, EndReason.COMPLETED));
         assertEquals(ArenaPhase.ENDED, phase.phaseOf(legendaryInstance).orElseThrow());
 
         bus.post(new EncounterCleanupEvent(legendaryInstance));

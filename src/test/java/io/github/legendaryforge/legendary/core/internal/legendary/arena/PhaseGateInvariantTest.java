@@ -29,7 +29,8 @@ final class PhaseGateInvariantTest {
         ArenaInvariantRegistry registry = id -> List.of(phaseGate);
         ArenaInvariantBridge.bind(bus, registry);
 
-        EncounterAnchor anchor = new EncounterAnchor(ResourceId.parse("test:world"), Optional.empty(), Optional.empty());
+        EncounterAnchor anchor =
+                new EncounterAnchor(ResourceId.parse("test:world"), Optional.empty(), Optional.empty());
         EncounterKey key = new EncounterKey(ResourceId.parse("test:encounter"), anchor);
 
         bus.post(new EncounterStartedEvent(key, instanceId, defId, anchor, UUID.randomUUID()));

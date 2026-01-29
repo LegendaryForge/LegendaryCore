@@ -1,5 +1,7 @@
 package io.github.legendaryforge.legendary.core.internal.legendary.arena;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterAccessPolicy;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterContext;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterDefinition;
@@ -19,8 +21,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 final class LegendaryInstanceTrackingEncounterManagerTest {
 
     @Test
@@ -34,7 +34,8 @@ final class LegendaryInstanceTrackingEncounterManagerTest {
         ResourceId legendaryId = ResourceId.parse("test:legendary_encounter");
 
         EncounterDefinition normalDef = proxyEncounterDefinition(EncounterDefinition.class, normalId);
-        LegendaryEncounterDefinition legendaryDef = proxyEncounterDefinition(LegendaryEncounterDefinition.class, legendaryId);
+        LegendaryEncounterDefinition legendaryDef =
+                proxyEncounterDefinition(LegendaryEncounterDefinition.class, legendaryId);
 
         EncounterManager delegate = new EncounterManager() {
             @Override
@@ -67,8 +68,7 @@ final class LegendaryInstanceTrackingEncounterManagerTest {
             }
         };
 
-        LegendaryInstanceTrackingEncounterManager mgr =
-                new LegendaryInstanceTrackingEncounterManager(delegate, ids);
+        LegendaryInstanceTrackingEncounterManager mgr = new LegendaryInstanceTrackingEncounterManager(delegate, ids);
 
         EncounterInstance normalInstance = mgr.create(normalDef, null);
         assertFalse(mgr.isLegendary(normalInstance.instanceId()));
@@ -80,9 +80,10 @@ final class LegendaryInstanceTrackingEncounterManagerTest {
     private static EncounterInstance proxyEncounterInstance(UUID instanceId) {
         return (EncounterInstance) Proxy.newProxyInstance(
                 EncounterInstance.class.getClassLoader(),
-                new Class<?>[] { EncounterInstance.class },
+                new Class<?>[] {EncounterInstance.class},
                 (proxy, method, args) -> {
-                    if ("instanceId".equals(method.getName()) && method.getReturnType().equals(UUID.class)) {
+                    if ("instanceId".equals(method.getName())
+                            && method.getReturnType().equals(UUID.class)) {
                         return instanceId;
                     }
                     Class<?> rt = method.getReturnType();
@@ -95,9 +96,7 @@ final class LegendaryInstanceTrackingEncounterManagerTest {
 
     private static <T> T proxyEncounterDefinition(Class<T> type, ResourceId id) {
         return type.cast(Proxy.newProxyInstance(
-                type.getClassLoader(),
-                new Class<?>[] { type },
-                (proxy, method, args) -> switch (method.getName()) {
+                type.getClassLoader(), new Class<?>[] {type}, (proxy, method, args) -> switch (method.getName()) {
                     case "id" -> id;
                     case "displayName" -> "test";
                     case "accessPolicy" -> EncounterAccessPolicy.PUBLIC;
