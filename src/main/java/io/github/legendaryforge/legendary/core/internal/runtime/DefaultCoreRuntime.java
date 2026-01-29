@@ -14,8 +14,11 @@ import io.github.legendaryforge.legendary.core.internal.encounter.lifecycle.Enco
 import io.github.legendaryforge.legendary.core.internal.event.SimpleEventBus;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaInvariantBridge;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaInvariantRegistry;
-import io.github.legendaryforge.legendary.core.internal.legendary.arena.PhaseGateInvariant;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaRevocationTracker;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.BoundsInvariant;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.LegendaryInstanceTrackingEncounterManager;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.LegendaryRevokedRejoinEnforcingEncounterManager;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.PhaseGateInvariant;
 import io.github.legendaryforge.legendary.core.internal.legendary.manager.LegendaryAccessEnforcingEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.legendary.penalty.NoopLegendaryPenaltyStatus;
 import io.github.legendaryforge.legendary.core.internal.legendary.start.DefaultLegendaryStartPolicy;
@@ -24,12 +27,10 @@ import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultLifecyc
 import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultServiceRegistry;
 import io.github.legendaryforge.legendary.core.internal.registry.DefaultRegistryAccess;
 import java.time.Clock;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Set;
-import io.github.legendaryforge.legendary.core.internal.legendary.arena.LegendaryInstanceTrackingEncounterManager;
-import io.github.legendaryforge.legendary.core.api.id.ResourceId;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Default internal wiring of LegendaryCore runtime components.
@@ -86,7 +87,7 @@ public final class DefaultCoreRuntime implements CoreRuntime {
                 io.github.legendaryforge.legendary.core.api.encounter.event.EncounterEndedEvent.class,
                 durationTelemetry::onEnded);
 
-Set<java.util.UUID> legendaryInstanceIds = ConcurrentHashMap.newKeySet();
+        Set<java.util.UUID> legendaryInstanceIds = ConcurrentHashMap.newKeySet();
         PhaseGateInvariant phaseGate = new PhaseGateInvariant();
         BoundsInvariant bounds = new BoundsInvariant(bus);
 
@@ -97,11 +98,20 @@ Set<java.util.UUID> legendaryInstanceIds = ConcurrentHashMap.newKeySet();
 
         ArenaInvariantBridge.bind(bus, arenaRegistry, legendaryInstanceIds::contains, legendaryInstanceIds::remove);
 
+        ArenaRevocationTracker revocations = new ArenaRevocationTracker();
+
+        bus.subscribe(
+                io.github.legendaryforge.legendary.core.api.encounter.event.EncounterEndedEvent.class,
+                e -> revocations.clearInstance(e.instanceId()));
+
         EncounterManager base = new DefaultEncounterManager(players, parties, Optional.of(bus));
         EncounterManager startGated = new LegendaryStartGatingEncounterManager(
                 base, new DefaultLegendaryStartPolicy(), new NoopLegendaryPenaltyStatus());
-        EncounterManager enforced = new LegendaryAccessEnforcingEncounterManager(startGated, new DefaultLegendaryAccessPolicy());
-this.encounters = new LegendaryInstanceTrackingEncounterManager(enforced, legendaryInstanceIds);
+        EncounterManager enforced =
+                new LegendaryAccessEnforcingEncounterManager(startGated, new DefaultLegendaryAccessPolicy());
+        EncounterManager revokedRejoinEnforced = new LegendaryRevokedRejoinEnforcingEncounterManager(
+                enforced, legendaryInstanceIds::contains, phaseGate, revocations);
+        this.encounters = new LegendaryInstanceTrackingEncounterManager(revokedRejoinEnforced, legendaryInstanceIds);
 
         this.players = Objects.requireNonNull(players, "players");
         this.parties = Objects.requireNonNull(parties, "parties");
