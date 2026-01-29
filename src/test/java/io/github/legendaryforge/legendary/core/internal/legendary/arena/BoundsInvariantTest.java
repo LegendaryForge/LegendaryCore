@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import io.github.legendaryforge.legendary.core.api.event.EventBus;
 import io.github.legendaryforge.legendary.core.internal.event.SimpleEventBus;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.event.ArenaBoundsViolatedEvent;
-import io.github.legendaryforge.legendary.core.internal.legendary.arena.event.ArenaParticipationRevokedEvent;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.event.ParticipationRevokedEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -21,8 +21,8 @@ final class BoundsInvariantTest {
         UUID instanceId = UUID.fromString("00000000-0000-0000-0000-000000000010");
         UUID playerId = UUID.fromString("00000000-0000-0000-0000-000000000011");
 
-        List<ArenaParticipationRevokedEvent> revoked = new ArrayList<>();
-        bus.subscribe(ArenaParticipationRevokedEvent.class, revoked::add);
+        List<ParticipationRevokedEvent> revoked = new ArrayList<>();
+        bus.subscribe(ParticipationRevokedEvent.class, revoked::add);
 
         // Not active yet -> no revoke
         bus.post(ArenaBoundsViolatedEvent.withoutPosition(instanceId, playerId));
