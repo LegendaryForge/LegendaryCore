@@ -14,6 +14,7 @@ import io.github.legendaryforge.legendary.core.internal.encounter.lifecycle.Enco
 import io.github.legendaryforge.legendary.core.internal.event.SimpleEventBus;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaInvariantBridge;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaInvariantRegistry;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaRevocationController;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaRevocationTracker;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.BoundsInvariant;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.LegendaryInstanceTrackingEncounterManager;
@@ -99,6 +100,10 @@ public final class DefaultCoreRuntime implements CoreRuntime {
         ArenaInvariantBridge.bind(bus, arenaRegistry, legendaryInstanceIds::contains, legendaryInstanceIds::remove);
 
         ArenaRevocationTracker revocations = new ArenaRevocationTracker();
+
+        ArenaRevocationController revocationController =
+                new ArenaRevocationController(revocations, bus, legendaryInstanceIds::contains);
+        this.services.register(ArenaRevocationController.class, revocationController);
 
         bus.subscribe(
                 io.github.legendaryforge.legendary.core.api.encounter.event.EncounterEndedEvent.class,
