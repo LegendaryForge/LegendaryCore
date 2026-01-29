@@ -23,6 +23,10 @@ import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultLifecyc
 import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultServiceRegistry;
 import io.github.legendaryforge.legendary.core.internal.registry.DefaultRegistryAccess;
 import java.time.Clock;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.LegendaryDefinitionTrackingEncounterManager;
+import io.github.legendaryforge.legendary.core.api.id.ResourceId;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -81,14 +85,21 @@ public final class DefaultCoreRuntime implements CoreRuntime {
                 io.github.legendaryforge.legendary.core.api.encounter.event.EncounterEndedEvent.class,
                 durationTelemetry::onEnded);
 
+Set<ResourceId> legendaryDefinitionIds = ConcurrentHashMap.newKeySet();
 PhaseGateInvariant phaseGate = new PhaseGateInvariant();
-ArenaInvariantRegistry arenaRegistry = defId -> java.util.List.of(phaseGate);
+
+ArenaInvariantRegistry arenaRegistry = definitionId -> {
+    Objects.requireNonNull(definitionId, "definitionId");
+    return legendaryDefinitionIds.contains(definitionId) ? java.util.List.of(phaseGate) : java.util.List.of();
+};
+
 ArenaInvariantBridge.bind(bus, arenaRegistry);
 
         EncounterManager base = new DefaultEncounterManager(players, parties, Optional.of(bus));
         EncounterManager startGated = new LegendaryStartGatingEncounterManager(
                 base, new DefaultLegendaryStartPolicy(), new NoopLegendaryPenaltyStatus());
-        this.encounters = new LegendaryAccessEnforcingEncounterManager(startGated, new DefaultLegendaryAccessPolicy());
+        EncounterManager enforced = new LegendaryAccessEnforcingEncounterManager(startGated, new DefaultLegendaryAccessPolicy());
+this.encounters = new LegendaryDefinitionTrackingEncounterManager(enforced, legendaryDefinitionIds);
 
         this.players = Objects.requireNonNull(players, "players");
         this.parties = Objects.requireNonNull(parties, "parties");
