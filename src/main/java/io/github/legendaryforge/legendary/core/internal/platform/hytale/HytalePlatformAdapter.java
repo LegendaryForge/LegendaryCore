@@ -21,14 +21,22 @@ public final class HytalePlatformAdapter {
      * Constructs an adapter using the default, platform-agnostic core runtime wiring.
      */
     public HytalePlatformAdapter() {
-        this(new DefaultCoreRuntime());
+        this(new DefaultCoreRuntime(), HytaleSignalSource.noop());
     }
 
     /**
      * Constructs an adapter delegating to the provided core runtime.
      */
     public HytalePlatformAdapter(CoreRuntime runtime) {
+        this(runtime, HytaleSignalSource.noop());
+    }
+
+    /**
+     * Constructs an adapter delegating to the provided core runtime and binds platform signal sources.
+     */
+    public HytalePlatformAdapter(CoreRuntime runtime, HytaleSignalSource signalSource) {
         this.runtime = Objects.requireNonNull(runtime, "runtime");
+        Objects.requireNonNull(signalSource, "signalSource").bind(this.runtime);
     }
 
     /**
