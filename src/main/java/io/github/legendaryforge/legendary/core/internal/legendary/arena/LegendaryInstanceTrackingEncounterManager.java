@@ -8,7 +8,6 @@ import io.github.legendaryforge.legendary.core.api.encounter.EncounterManager;
 import io.github.legendaryforge.legendary.core.api.encounter.EndReason;
 import io.github.legendaryforge.legendary.core.api.encounter.JoinResult;
 import io.github.legendaryforge.legendary.core.api.encounter.ParticipationRole;
-import io.github.legendaryforge.legendary.core.api.id.ResourceId;
 import io.github.legendaryforge.legendary.core.api.legendary.definition.LegendaryEncounterDefinition;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,33 +15,34 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Internal decorator that tracks which encounter definition ids are legendary based on runtime create() calls.
+ * Internal decorator that tracks which encounter instance ids are legendary based on runtime create() calls.
  *
- * <p>This provides a deterministic, low-overhead gating mechanism for internal arena invariants without introducing
+ * <p>This provides a deterministic, bounded gating mechanism for internal arena invariants without introducing
  * new public Core APIs or registries.
  */
-public final class LegendaryDefinitionTrackingEncounterManager implements EncounterManager {
+public final class LegendaryInstanceTrackingEncounterManager implements EncounterManager {
 
     private final EncounterManager delegate;
-    private final Set<ResourceId> legendaryDefinitionIds;
+    private final Set<UUID> legendaryInstanceIds;
 
-    public LegendaryDefinitionTrackingEncounterManager(EncounterManager delegate, Set<ResourceId> legendaryDefinitionIds) {
+    public LegendaryInstanceTrackingEncounterManager(EncounterManager delegate, Set<UUID> legendaryInstanceIds) {
         this.delegate = Objects.requireNonNull(delegate, "delegate");
-        this.legendaryDefinitionIds = Objects.requireNonNull(legendaryDefinitionIds, "legendaryDefinitionIds");
+        this.legendaryInstanceIds = Objects.requireNonNull(legendaryInstanceIds, "legendaryInstanceIds");
     }
 
-    public boolean isLegendary(ResourceId definitionId) {
-        Objects.requireNonNull(definitionId, "definitionId");
-        return legendaryDefinitionIds.contains(definitionId);
+    public boolean isLegendary(UUID instanceId) {
+        Objects.requireNonNull(instanceId, "instanceId");
+        return legendaryInstanceIds.contains(instanceId);
     }
 
     @Override
     public EncounterInstance create(EncounterDefinition definition, EncounterContext context) {
         Objects.requireNonNull(definition, "definition");
+        EncounterInstance instance = delegate.create(definition, context);
         if (definition instanceof LegendaryEncounterDefinition) {
-            legendaryDefinitionIds.add(definition.id());
+            legendaryInstanceIds.add(instance.instanceId());
         }
-        return delegate.create(definition, context);
+        return instance;
     }
 
     @Override

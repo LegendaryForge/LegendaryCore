@@ -25,7 +25,7 @@ import io.github.legendaryforge.legendary.core.internal.registry.DefaultRegistry
 import java.time.Clock;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Set;
-import io.github.legendaryforge.legendary.core.internal.legendary.arena.LegendaryDefinitionTrackingEncounterManager;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.LegendaryInstanceTrackingEncounterManager;
 import io.github.legendaryforge.legendary.core.api.id.ResourceId;
 import java.util.Objects;
 import java.util.Optional;
@@ -85,21 +85,21 @@ public final class DefaultCoreRuntime implements CoreRuntime {
                 io.github.legendaryforge.legendary.core.api.encounter.event.EncounterEndedEvent.class,
                 durationTelemetry::onEnded);
 
-Set<ResourceId> legendaryDefinitionIds = ConcurrentHashMap.newKeySet();
+Set<java.util.UUID> legendaryInstanceIds = ConcurrentHashMap.newKeySet();
 PhaseGateInvariant phaseGate = new PhaseGateInvariant();
 
 ArenaInvariantRegistry arenaRegistry = definitionId -> {
     Objects.requireNonNull(definitionId, "definitionId");
-    return legendaryDefinitionIds.contains(definitionId) ? java.util.List.of(phaseGate) : java.util.List.of();
+    return java.util.List.of(phaseGate);
 };
 
-ArenaInvariantBridge.bind(bus, arenaRegistry);
+ArenaInvariantBridge.bind(bus, arenaRegistry, legendaryInstanceIds::contains, legendaryInstanceIds::remove);
 
         EncounterManager base = new DefaultEncounterManager(players, parties, Optional.of(bus));
         EncounterManager startGated = new LegendaryStartGatingEncounterManager(
                 base, new DefaultLegendaryStartPolicy(), new NoopLegendaryPenaltyStatus());
         EncounterManager enforced = new LegendaryAccessEnforcingEncounterManager(startGated, new DefaultLegendaryAccessPolicy());
-this.encounters = new LegendaryDefinitionTrackingEncounterManager(enforced, legendaryDefinitionIds);
+this.encounters = new LegendaryInstanceTrackingEncounterManager(enforced, legendaryInstanceIds);
 
         this.players = Objects.requireNonNull(players, "players");
         this.parties = Objects.requireNonNull(parties, "parties");

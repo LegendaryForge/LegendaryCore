@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterManager;
 import io.github.legendaryforge.legendary.core.api.platform.CoreRuntime;
 import io.github.legendaryforge.legendary.core.internal.encounter.DefaultEncounterManager;
-import io.github.legendaryforge.legendary.core.internal.legendary.arena.LegendaryDefinitionTrackingEncounterManager;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.LegendaryInstanceTrackingEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.legendary.manager.LegendaryAccessEnforcingEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.legendary.start.LegendaryStartGatingEncounterManager;
 import java.lang.reflect.Field;
@@ -30,7 +30,7 @@ final class DefaultCoreRuntimeWiringTest {
         CoreRuntime runtime = new DefaultCoreRuntime();
 
         EncounterManager encounters = runtime.encounters();
-          assertTrue(encounters instanceof LegendaryDefinitionTrackingEncounterManager, "top-level should track legendary definitions");
+          assertTrue(encounters instanceof LegendaryInstanceTrackingEncounterManager, "top-level should track legendary instances");
 
           EncounterManager enforcing = readDelegate(encounters);
           assertTrue(enforcing instanceof LegendaryAccessEnforcingEncounterManager, "second-level should enforce access");

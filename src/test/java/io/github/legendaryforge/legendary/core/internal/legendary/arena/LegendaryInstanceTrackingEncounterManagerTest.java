@@ -1,5 +1,6 @@
 package io.github.legendaryforge.legendary.core.internal.legendary.arena;
 
+import io.github.legendaryforge.legendary.core.api.encounter.EncounterAccessPolicy;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterContext;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterDefinition;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterInstance;
@@ -9,7 +10,6 @@ import io.github.legendaryforge.legendary.core.api.encounter.EndReason;
 import io.github.legendaryforge.legendary.core.api.encounter.JoinResult;
 import io.github.legendaryforge.legendary.core.api.encounter.ParticipationRole;
 import io.github.legendaryforge.legendary.core.api.encounter.SpectatorPolicy;
-import io.github.legendaryforge.legendary.core.api.encounter.EncounterAccessPolicy;
 import io.github.legendaryforge.legendary.core.api.id.ResourceId;
 import io.github.legendaryforge.legendary.core.api.legendary.definition.LegendaryEncounterDefinition;
 import java.lang.reflect.Proxy;
@@ -21,16 +21,28 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-final class LegendaryDefinitionTrackingEncounterManagerTest {
+final class LegendaryInstanceTrackingEncounterManagerTest {
 
     @Test
-    void tracksLegendaryDefinitionIdsOnCreate() {
-        Set<ResourceId> ids = ConcurrentHashMap.newKeySet();
+    void tracksLegendaryInstanceIdsOnCreate() {
+        Set<UUID> ids = ConcurrentHashMap.newKeySet();
+
+        UUID normalInstanceId = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        UUID legendaryInstanceId = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
+        ResourceId normalId = ResourceId.parse("test:normal_encounter");
+        ResourceId legendaryId = ResourceId.parse("test:legendary_encounter");
+
+        EncounterDefinition normalDef = proxyEncounterDefinition(EncounterDefinition.class, normalId);
+        LegendaryEncounterDefinition legendaryDef = proxyEncounterDefinition(LegendaryEncounterDefinition.class, legendaryId);
 
         EncounterManager delegate = new EncounterManager() {
             @Override
             public EncounterInstance create(EncounterDefinition definition, EncounterContext context) {
-                return proxyEncounterInstance();
+                if (definition instanceof LegendaryEncounterDefinition) {
+                    return proxyEncounterInstance(legendaryInstanceId);
+                }
+                return proxyEncounterInstance(normalInstanceId);
             }
 
             @Override
@@ -55,29 +67,25 @@ final class LegendaryDefinitionTrackingEncounterManagerTest {
             }
         };
 
-        LegendaryDefinitionTrackingEncounterManager mgr =
-                new LegendaryDefinitionTrackingEncounterManager(delegate, ids);
+        LegendaryInstanceTrackingEncounterManager mgr =
+                new LegendaryInstanceTrackingEncounterManager(delegate, ids);
 
-        ResourceId normalId = ResourceId.parse("test:normal_encounter");
-        ResourceId legendaryId = ResourceId.parse("test:legendary_encounter");
+        EncounterInstance normalInstance = mgr.create(normalDef, null);
+        assertFalse(mgr.isLegendary(normalInstance.instanceId()));
 
-        EncounterDefinition normalDef = proxyEncounterDefinition(EncounterDefinition.class, normalId);
-        LegendaryEncounterDefinition legendaryDef = proxyEncounterDefinition(LegendaryEncounterDefinition.class, legendaryId);
-
-        mgr.create(normalDef, null);
-        assertFalse(mgr.isLegendary(normalId));
-
-        mgr.create(legendaryDef, null);
-        assertTrue(mgr.isLegendary(legendaryId));
+        EncounterInstance legendaryInstance = mgr.create(legendaryDef, null);
+        assertTrue(mgr.isLegendary(legendaryInstance.instanceId()));
     }
 
-    private static EncounterInstance proxyEncounterInstance() {
+    private static EncounterInstance proxyEncounterInstance(UUID instanceId) {
         return (EncounterInstance) Proxy.newProxyInstance(
                 EncounterInstance.class.getClassLoader(),
                 new Class<?>[] { EncounterInstance.class },
                 (proxy, method, args) -> {
+                    if ("instanceId".equals(method.getName()) && method.getReturnType().equals(UUID.class)) {
+                        return instanceId;
+                    }
                     Class<?> rt = method.getReturnType();
-                    if (rt.equals(UUID.class)) return UUID.randomUUID();
                     if (rt.equals(Optional.class)) return Optional.empty();
                     if (rt.equals(int.class)) return 0;
                     if (rt.equals(boolean.class)) return false;
@@ -89,16 +97,14 @@ final class LegendaryDefinitionTrackingEncounterManagerTest {
         return type.cast(Proxy.newProxyInstance(
                 type.getClassLoader(),
                 new Class<?>[] { type },
-                (proxy, method, args) -> {
-                    return switch (method.getName()) {
-                        case "id" -> id;
-                        case "displayName" -> "test";
-                        case "accessPolicy" -> EncounterAccessPolicy.PUBLIC;
-                        case "spectatorPolicy" -> SpectatorPolicy.ALLOW_VIEW_ONLY;
-                        case "maxParticipants" -> 0;
-                        case "maxSpectators" -> 0;
-                        default -> null;
-                    };
+                (proxy, method, args) -> switch (method.getName()) {
+                    case "id" -> id;
+                    case "displayName" -> "test";
+                    case "accessPolicy" -> EncounterAccessPolicy.PUBLIC;
+                    case "spectatorPolicy" -> SpectatorPolicy.ALLOW_VIEW_ONLY;
+                    case "maxParticipants" -> 0;
+                    case "maxSpectators" -> 0;
+                    default -> null;
                 }));
     }
 }

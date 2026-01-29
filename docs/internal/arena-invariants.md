@@ -30,7 +30,7 @@ They must not introduce new public Core APIs and must not leak behavior into non
 
 ## Legendary-only gating (LOCKED)
 - Arena invariants apply only to Legendary encounters.
-- Legendary detection is captured at encounter creation time by tracking definition IDs when:
+- Legendary detection is captured at encounter creation time by tracking instance IDs when:
   - definition instanceof LegendaryEncounterDefinition
 - Gating is enforced internally in DefaultCoreRuntime wiring.
 
