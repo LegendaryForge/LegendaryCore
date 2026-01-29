@@ -15,6 +15,7 @@ import io.github.legendaryforge.legendary.core.internal.event.SimpleEventBus;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaInvariantBridge;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaInvariantRegistry;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.PhaseGateInvariant;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.BoundsInvariant;
 import io.github.legendaryforge.legendary.core.internal.legendary.manager.LegendaryAccessEnforcingEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.legendary.penalty.NoopLegendaryPenaltyStatus;
 import io.github.legendaryforge.legendary.core.internal.legendary.start.DefaultLegendaryStartPolicy;
@@ -86,14 +87,15 @@ public final class DefaultCoreRuntime implements CoreRuntime {
                 durationTelemetry::onEnded);
 
 Set<java.util.UUID> legendaryInstanceIds = ConcurrentHashMap.newKeySet();
-PhaseGateInvariant phaseGate = new PhaseGateInvariant();
+        PhaseGateInvariant phaseGate = new PhaseGateInvariant();
+        BoundsInvariant bounds = new BoundsInvariant(bus);
 
-ArenaInvariantRegistry arenaRegistry = definitionId -> {
-    Objects.requireNonNull(definitionId, "definitionId");
-    return java.util.List.of(phaseGate);
-};
+        ArenaInvariantRegistry arenaRegistry = definitionId -> {
+            Objects.requireNonNull(definitionId, "definitionId");
+            return java.util.List.of(phaseGate, bounds);
+        };
 
-ArenaInvariantBridge.bind(bus, arenaRegistry, legendaryInstanceIds::contains, legendaryInstanceIds::remove);
+        ArenaInvariantBridge.bind(bus, arenaRegistry, legendaryInstanceIds::contains, legendaryInstanceIds::remove);
 
         EncounterManager base = new DefaultEncounterManager(players, parties, Optional.of(bus));
         EncounterManager startGated = new LegendaryStartGatingEncounterManager(
