@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterManager;
 import io.github.legendaryforge.legendary.core.api.platform.CoreRuntime;
 import io.github.legendaryforge.legendary.core.internal.encounter.DefaultEncounterManager;
+import io.github.legendaryforge.legendary.core.internal.legendary.arena.LegendaryDefinitionTrackingEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.legendary.manager.LegendaryAccessEnforcingEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.legendary.start.LegendaryStartGatingEncounterManager;
 import java.lang.reflect.Field;
@@ -29,12 +30,15 @@ final class DefaultCoreRuntimeWiringTest {
         CoreRuntime runtime = new DefaultCoreRuntime();
 
         EncounterManager encounters = runtime.encounters();
-        assertTrue(encounters instanceof LegendaryAccessEnforcingEncounterManager, "top-level should enforce access");
+          assertTrue(encounters instanceof LegendaryDefinitionTrackingEncounterManager, "top-level should track legendary definitions");
 
-        EncounterManager startGated = readDelegate(encounters);
-        assertTrue(startGated instanceof LegendaryStartGatingEncounterManager, "second-level should gate start");
+          EncounterManager enforcing = readDelegate(encounters);
+          assertTrue(enforcing instanceof LegendaryAccessEnforcingEncounterManager, "second-level should enforce access");
 
-        EncounterManager base = readDelegate(startGated);
+          EncounterManager startGated = readDelegate(enforcing);
+          assertTrue(startGated instanceof LegendaryStartGatingEncounterManager, "third-level should gate start");
+
+          EncounterManager base = readDelegate(startGated);
         assertTrue(base instanceof DefaultEncounterManager, "base should be DefaultEncounterManager");
     }
 
