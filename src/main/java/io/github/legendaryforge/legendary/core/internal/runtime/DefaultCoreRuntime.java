@@ -1,7 +1,10 @@
 package io.github.legendaryforge.legendary.core.internal.runtime;
 
+import io.github.legendaryforge.legendary.core.api.activation.ActivationService;
+import io.github.legendaryforge.legendary.core.api.activation.session.ActivationSessionService;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterManager;
 import io.github.legendaryforge.legendary.core.api.event.EventBus;
+import io.github.legendaryforge.legendary.core.api.gate.GateService;
 import io.github.legendaryforge.legendary.core.api.identity.PartyDirectory;
 import io.github.legendaryforge.legendary.core.api.identity.PlayerDirectory;
 import io.github.legendaryforge.legendary.core.api.legendary.access.DefaultLegendaryAccessPolicy;
@@ -9,9 +12,12 @@ import io.github.legendaryforge.legendary.core.api.lifecycle.Lifecycle;
 import io.github.legendaryforge.legendary.core.api.lifecycle.ServiceRegistry;
 import io.github.legendaryforge.legendary.core.api.platform.CoreRuntime;
 import io.github.legendaryforge.legendary.core.api.registry.RegistryAccess;
+import io.github.legendaryforge.legendary.core.internal.activation.DefaultActivationService;
+import io.github.legendaryforge.legendary.core.internal.activation.session.DefaultActivationSessionService;
 import io.github.legendaryforge.legendary.core.internal.encounter.DefaultEncounterManager;
 import io.github.legendaryforge.legendary.core.internal.encounter.lifecycle.EncounterDurationTelemetry;
 import io.github.legendaryforge.legendary.core.internal.event.SimpleEventBus;
+import io.github.legendaryforge.legendary.core.internal.gate.DefaultGateService;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaInvariantBridge;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaInvariantRegistry;
 import io.github.legendaryforge.legendary.core.internal.legendary.arena.ArenaRevocationController;
@@ -108,6 +114,15 @@ public final class DefaultCoreRuntime implements CoreRuntime {
 
         RevocationPenaltyBridge penaltyBridge = new RevocationPenaltyBridge(bus);
         this.services.register(RevocationPenaltyBridge.class, penaltyBridge);
+
+        GateService gates = new DefaultGateService();
+        this.services.register(GateService.class, gates);
+
+        ActivationSessionService sessions = new DefaultActivationSessionService();
+        this.services.register(ActivationSessionService.class, sessions);
+
+        ActivationService activations = new DefaultActivationService();
+        this.services.register(ActivationService.class, activations);
 
         bus.subscribe(
                 io.github.legendaryforge.legendary.core.api.encounter.event.EncounterEndedEvent.class,
