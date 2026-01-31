@@ -121,7 +121,7 @@ public final class DefaultCoreRuntime implements CoreRuntime {
         ActivationSessionService sessions = new DefaultActivationSessionService();
         this.services.register(ActivationSessionService.class, sessions);
 
-        ActivationService activations = new DefaultActivationService();
+        ActivationService activations = new DefaultActivationService(gates, sessions);
         this.services.register(ActivationService.class, activations);
 
         bus.subscribe(
