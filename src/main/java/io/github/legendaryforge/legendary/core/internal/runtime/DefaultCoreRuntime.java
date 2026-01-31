@@ -1,5 +1,7 @@
 package io.github.legendaryforge.legendary.core.internal.runtime;
 
+import io.github.legendaryforge.legendary.core.api.activation.ActivationInput;
+import io.github.legendaryforge.legendary.core.api.activation.ActivationInputResolver;
 import io.github.legendaryforge.legendary.core.api.activation.ActivationService;
 import io.github.legendaryforge.legendary.core.api.activation.session.ActivationSessionService;
 import io.github.legendaryforge.legendary.core.api.encounter.EncounterManager;
@@ -35,17 +37,12 @@ import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultLifecyc
 import io.github.legendaryforge.legendary.core.internal.lifecycle.DefaultServiceRegistry;
 import io.github.legendaryforge.legendary.core.internal.registry.DefaultRegistryAccess;
 import java.time.Clock;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Default internal wiring of LegendaryCore runtime components.
- *
- * <p>This provides a platform-agnostic reference implementation that platform adapters may
- * construct and delegate to.</p>
- */
 public final class DefaultCoreRuntime implements CoreRuntime {
 
     private final RegistryAccess registries;
@@ -59,9 +56,6 @@ public final class DefaultCoreRuntime implements CoreRuntime {
     private final Optional<PlayerDirectory> players;
     private final Optional<PartyDirectory> parties;
 
-    /**
-     * Platform-agnostic default constructor using the internal reference EncounterManager.
-     */
     public DefaultCoreRuntime() {
         this(Optional.empty(), Optional.empty(), Clock.systemUTC());
     }
@@ -121,7 +115,10 @@ public final class DefaultCoreRuntime implements CoreRuntime {
         ActivationSessionService sessions = new DefaultActivationSessionService();
         this.services.register(ActivationSessionService.class, sessions);
 
-        ActivationService activations = new DefaultActivationService(gates, sessions);
+        ActivationInputResolver activationInputs = request -> new ActivationInput(
+                request.activatorId(), request.activationGateKey().orElseThrow(), Map.of(), request.targetRef());
+
+        ActivationService activations = new DefaultActivationService(gates, sessions, activationInputs);
         this.services.register(ActivationService.class, activations);
 
         bus.subscribe(
@@ -139,33 +136,6 @@ public final class DefaultCoreRuntime implements CoreRuntime {
 
         this.players = Objects.requireNonNull(players, "players");
         this.parties = Objects.requireNonNull(parties, "parties");
-    }
-
-    public DefaultCoreRuntime(EncounterManager encounters) {
-        this(encounters, Optional.empty(), Optional.empty());
-    }
-
-    private DefaultCoreRuntime(
-            EncounterManager encounters,
-            EventBus events,
-            Optional<PlayerDirectory> players,
-            Optional<PartyDirectory> parties) {
-        this.registries = new DefaultRegistryAccess();
-
-        DefaultLifecycle lifecycle = new DefaultLifecycle();
-        this.lifecycle = lifecycle;
-
-        this.services = new DefaultServiceRegistry(lifecycle);
-        this.events = java.util.Objects.requireNonNull(events, "events");
-        this.clock = Clock.systemUTC();
-        this.encounters = java.util.Objects.requireNonNull(encounters, "encounters");
-        this.players = java.util.Objects.requireNonNull(players, "players");
-        this.parties = java.util.Objects.requireNonNull(parties, "parties");
-    }
-
-    private DefaultCoreRuntime(
-            EncounterManager encounters, Optional<PlayerDirectory> players, Optional<PartyDirectory> parties) {
-        this(encounters, new SimpleEventBus(), players, parties);
     }
 
     @Override

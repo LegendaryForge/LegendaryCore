@@ -15,5 +15,6 @@ public interface ActivationService {
             EncounterDefinition definition,
             EncounterContext context,
             Optional<ResourceId> activationGateKey,
-            Optional<ActivationAuthority> authorityOverride) {}
+            Optional<ActivationAuthority> authorityOverride,
+            Optional<String> targetRef) {}
 }
