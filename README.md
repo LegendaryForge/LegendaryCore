@@ -1,6 +1,9 @@
 # LegendaryCore
 
-## Core Guarantees (Current)
+
+
+A minimal, engine-agnostic foundation for deterministic legendary encounters in Hytale.
+
 
 LegendaryCore aims to provide a small, deterministic encounter foundation with conservative, fail-closed behavior when required platform information is unavailable.
 
