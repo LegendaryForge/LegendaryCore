@@ -2,6 +2,7 @@ import net.ltgt.gradle.errorprone.ErrorProneOptions
 import net.ltgt.gradle.errorprone.errorprone
 
 plugins {
+    `maven-publish`
     id("java-library")
     id("com.gradleup.shadow") version "9.3.1"
     id("net.ltgt.errorprone") version "4.4.0"
@@ -11,6 +12,17 @@ plugins {
 project.group = (findProperty("pluginGroup") as String? ?: "com.example")
 project.version = (findProperty("pluginVersion") as String? ?: "1.0.0")
 description = findProperty("pluginDescription") as String? ?: "A Hytale plugin template"
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            groupId = "io.github.legendaryforge"
+            artifactId = "LegendaryCore"
+            version = "0.0.0-SNAPSHOT"
+        }
+    }
+}
 
 repositories {
     mavenLocal()
